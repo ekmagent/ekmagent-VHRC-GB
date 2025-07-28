@@ -49,7 +49,7 @@ export default function TimeSelectionStep({ selectedTime, onTimeSelect }) {
     const counts = {};
     timeOptions.forEach((option) => {
       // Generate a random number between 8 and 23
-      counts[option.id] = Math.floor(Math.random() * (23 - 8 + 1)) + 8;
+      counts[option.id] = Math.floor(Math.random() * (21 - 6 + 1)) + 6;
     });
     setSeatCounts(counts);
   }, []); // Empty dependency array ensures this runs only once on mount
