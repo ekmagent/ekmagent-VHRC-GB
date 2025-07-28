@@ -348,7 +348,8 @@ export default function MedicareLanding() {
           <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex items-start space-x-4">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/7ca4a92a4_IMG_5861.png"
-              alt="Anthony Orner" className="w-16 h-16 rounded-full object-cover border-2 border-white" />
+              alt="Anthony Orner" className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white flex-shrink-0"
+/>
 
 
             <div className="flex-1">
