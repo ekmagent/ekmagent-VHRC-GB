@@ -69,12 +69,12 @@ export default function MedicareLanding() {
           window.fbq('track', 'ViewContent', { content_name: 'Webinar Time Selected' });
           break;
         case 2: // After submitting last name (this step is currentStep 2, so when moving to 3)
-          window.fbq('track', 'InitiateCheckout', { content_name: 'Webinar Registration' });
+          window.fbq('track', 'InitiateCheckout', { content_name: 'Webinar q 2 completed' });
           break;
       }
     }
 
-    setCurrentStep((prev) => prev + 1);
+    setCurrentStep((prev) => prev + 1); 
   };
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
