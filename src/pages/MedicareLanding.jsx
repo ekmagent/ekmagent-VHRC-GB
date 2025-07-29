@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Shield, CheckCircle, Star, CheckCircle2, Award, ShieldCheck } from 'lucide-react';
@@ -30,6 +29,7 @@ export default function MedicareLanding() {
     utm_source: '',
     utm_campaign: ''
   });
+  const [pixelEventId, setPixelEventId] = useState('');
 
   const totalSteps = 9; // Time (0), FirstName (1), LastName (2), Email (3), Phone (4), Consent (5), T65 (6), Insurance (7), InsuranceCost (8)
 
@@ -81,6 +81,12 @@ export default function MedicareLanding() {
 
   const handleInitialSubmit = async () => {
     setIsSubmitting(true);
+    const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    setPixelEventId(eventId);
+
+    // Generate a unique event ID for deduplication
+    // const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
     const leadData = { ...formData, consent: true };
     setFormData(leadData);
 
@@ -91,9 +97,10 @@ export default function MedicareLanding() {
         email: leadData.email,
         phone: leadData.phone,
         webinarTime: leadData.webinarTime,
-        webinarTime_unix: new Date(leadData.webinarTime).getTime() / 1000, // This line
+        webinarTime_unix: new Date(leadData.webinarTime).getTime() / 1000,
         ...(leadData.utm_source && { utm_source: leadData.utm_source }),
-        ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign })
+        ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
+        pixel_event_id: eventId // Include event ID for Make.com/GHL
       };
 
       console.log('Sending initial webhook data:', webhookData);
@@ -110,12 +117,13 @@ export default function MedicareLanding() {
 
       console.log('Initial webhook response status:', response.status);
 
+      // Fire CompleteRegistration pixel event with event ID for deduplication
       if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'Lead', {
+        window.fbq('track', 'CompleteRegistration', {
           content_name: 'Webinar Registration',
-          value: 0,
+          value: 12,
           currency: 'USD'
-        });
+        }, { eventID: eventId });
       }
 
       setCurrentStep((prev) => prev + 1);
@@ -129,12 +137,13 @@ export default function MedicareLanding() {
 
   const handleFinalSubmit = async (finalData) => {
     setIsSubmitting(true);
+    const eventId = pixelEventId; // Use the same event ID
     const fullLeadData = { ...formData, ...finalData };
     setFormData(fullLeadData);
 
     try {
       // Always generate a unique event ID for the webhook
-      const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      // const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
       // Fire CompleteRegistration pixel event if the fbq object is available
       if (typeof window !== 'undefined' && window.fbq) {
