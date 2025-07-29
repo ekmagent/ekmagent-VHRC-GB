@@ -142,23 +142,6 @@ export default function MedicareLanding() {
     setFormData(fullLeadData);
 
     try {
-      // Always generate a unique event ID for the webhook
-      // const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
-      // Fire CompleteRegistration pixel event if the fbq object is available
-      if (typeof window !== 'undefined' && window.fbq) {
-        console.log('Firing CompleteRegistration FB Pixel event with eventID:', eventId);
-        window.fbq('track', 'CompleteRegistration', {
-          content_name: 'Medicare Webinar Registration Complete',
-          value: 0,
-          currency: 'USD',
-          content_category: 'Medicare Education',
-          num_items: 1
-        }, { eventID: eventId });
-      } else {
-        console.log('FB Pixel (fbq) not found. Skipping pixel event firing, but still sending event_id to webhook.');
-      }
-
       // Send complete form data with pixel event ID to Make.com
       const webhookData = {
         ...fullLeadData,
