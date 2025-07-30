@@ -49,10 +49,10 @@ export default function PhoneStep({ formData, onNext, onBack }) {
     >
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Last detail, {formData.firstName}: what's your phone number?
+          Last detail, {formData.firstName}: where should we send reminders to?
         </h2>
         <p className="text-gray-600 text-lg">
-          We'll send one courtesy reminder before the event.
+          We do not share your phone number with anyone.
         </p>
       </div>
 
