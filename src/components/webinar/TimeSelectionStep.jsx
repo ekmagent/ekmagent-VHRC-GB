@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Calendar } from 'lucide-react';
@@ -19,26 +18,32 @@ const getNextEventDates = () => {
   if (now > tue1830) tue1830 = addDays(tue1830, 7);
   if (now > thu11) thu11 = addDays(thu11, 7);
 
-  return [
-  {
-    id: tue11.toISOString(),
-    time: '11:00 AM EST',
-    day: 'Tuesday',
-    date: format(tue11, 'MMMM do')
-  },
-  {
-    id: tue1830.toISOString(),
-    time: '6:30 PM EST',
-    day: 'Tuesday',
-    date: format(tue1830, 'MMMM do')
-  },
-  {
-    id: thu11.toISOString(),
-    time: '11:00 AM EST',
-    day: 'Thursday',
-    date: format(thu11, 'MMMM do')
-  }];
+  const options = [
+    {
+      id: tue11.toISOString(),
+      time: '11:00 AM EST',
+      day: 'Tuesday',
+      date: format(tue11, 'MMMM do'),
+      dateTime: tue11 // Add this for sorting
+    },
+    {
+      id: tue1830.toISOString(),
+      time: '6:30 PM EST',
+      day: 'Tuesday',
+      date: format(tue1830, 'MMMM do'),
+      dateTime: tue1830 // Add this for sorting
+    },
+    {
+      id: thu11.toISOString(),
+      time: '11:00 AM EST',
+      day: 'Thursday',
+      date: format(thu11, 'MMMM do'),
+      dateTime: thu11 // Add this for sorting
+    }
+  ];
 
+  // Sort by actual date/time chronologically
+  return options.sort((a, b) => a.dateTime - b.dateTime);
 };
 
 export default function TimeSelectionStep({ selectedTime, onTimeSelect }) {
