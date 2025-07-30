@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Calendar } from 'lucide-react';
 
@@ -8,12 +8,10 @@ const months = [
 ];
 
 export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBack }) {
-  const [selected, setSelected] = useState(selectedMonth || '');
 
-  const handleNext = () => {
-    if (selected) {
-      onNext(selected);
-    }
+  const handleMonthSelect = (month) => {
+    // Immediately proceed to next step when month is selected
+    onNext(month);
   };
 
   return (
@@ -31,7 +29,7 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-2xl font-bold text-[#0D2C4C] mb-2">
+          className="text-xl md:text-2xl font-bold text-[#0D2C4C] mb-2">
           What month were you born, {firstName}?
         </motion.h2>
 
@@ -39,8 +37,8 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-gray-600">
-          This helps us provide the most relevant Medicare guidance for your timeline.
+          className="text-gray-600 text-sm">
+          Tap your birth month to continue
         </motion.p>
       </div>
 
@@ -48,50 +46,29 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        className="grid grid-cols-2 md:grid-cols-3 gap-2">
         {months.map((month, index) => (
           <motion.button
             key={month}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * index }}
-            onClick={() => setSelected(month)}
-            className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${
-              selected === month
-                ? 'border-[#FFB400] bg-[#FFB400]/10 text-[#0D2C4C] shadow-md'
-                : 'border-gray-200 bg-white hover:border-[#FFB400]/50 hover:bg-[#FFB400]/5 text-gray-700'
-            }`}>
-            <div className="font-semibold">{month}</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {String(index + 1).padStart(2, '0')}
-            </div>
+            transition={{ delay: 0.05 * index }}
+            onClick={() => handleMonthSelect(month)}
+            className="p-3 md:p-4 rounded-xl border-2 text-center transition-all duration-200 bg-white hover:border-[#FFB400] hover:bg-[#FFB400]/5 text-gray-700 active:scale-95 touch-manipulation min-h-[3rem] flex items-center justify-center">
+            <div className="font-semibold text-sm md:text-base">{month}</div>
           </motion.button>
         ))}
       </motion.div>
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex justify-start pt-4">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
           onClick={onBack}
-          className="flex items-center px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
+          className="flex items-center px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors touch-manipulation">
           <ChevronLeft className="w-4 h-4 mr-2" />
           Back
-        </motion.button>
-
-        <motion.button
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          onClick={handleNext}
-          disabled={!selected}
-          className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
-            selected
-              ? 'bg-[#FFB400] text-white hover:bg-[#FFB400]/90 shadow-lg hover:shadow-xl'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}>
-          Continue
         </motion.button>
       </div>
     </div>
