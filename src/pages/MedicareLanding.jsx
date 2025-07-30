@@ -33,20 +33,39 @@ export default function MedicareLanding() {
     utm_campaign: ''
   });
   const [pixelEventId, setPixelEventId] = useState('');
+  
+  // Add dev mode state (defaults to false for safety)
+  const [devMode, setDevMode] = useState(false);
 
   const totalSteps = 11; // Time (0), FirstName (1), LastName (2), Email (3), Phone (4), Consent (5), BirthMonth (6), BirthYear (7), Insurance (8), InsuranceCost (9)
 
   useEffect(() => {
-    // Fire PageView pixel event on component mount
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView');
-    }
+    // Check for dev mode via URL parameter
     const urlParams = new URLSearchParams(window.location.search);
+    const isDevMode = urlParams.get('dev') === 'true';
+    setDevMode(isDevMode);
+    
+    // Log current mode for clarity
+    if (isDevMode) {
+      console.log('🧪 DEV MODE ACTIVATED - No webhooks or pixels will fire');
+      console.log('To disable dev mode, remove ?dev=true from URL');
+    } else {
+      console.log('✅ PRODUCTION MODE - Webhooks and pixels will fire normally');
+    }
+
+    // Fire PageView pixel event on component mount (only if not dev mode)
+    if (typeof window !== 'undefined' && window.fbq && !isDevMode) {
+      window.fbq('track', 'PageView');
+    } else if (isDevMode) {
+      console.log('🧪 DEV MODE: Skipped PageView pixel event');
+    }
+    
     setFormData((prev) => ({
       ...prev,
       utm_source: urlParams.get('utm_source') || '',
       utm_campaign: urlParams.get('utm_campaign') || ''
     }));
+    
     const savedData = localStorage.getItem('webinarFormData');
     if (savedData) {
       try {
@@ -87,9 +106,6 @@ export default function MedicareLanding() {
     const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     setPixelEventId(eventId);
 
-    // Generate a unique event ID for deduplication
-    // const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
     const leadData = { ...formData, consent: true };
     setFormData(leadData);
 
@@ -103,30 +119,34 @@ export default function MedicareLanding() {
         webinarTime_unix: new Date(leadData.webinarTime).getTime() / 1000,
         ...(leadData.utm_source && { utm_source: leadData.utm_source }),
         ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
-        pixel_event_id: eventId // Include event ID for Make.com/GHL
+        pixel_event_id: eventId
       };
 
-      console.log('Sending initial webhook data:', webhookData);
+      if (!devMode) {
+        console.log('Sending initial webhook data:', webhookData);
+        const response = await fetch('https://hook.us1.make.com/r1kbh1gkk5j31prdnhcn1dq8hsk2gyd9', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(webhookData),
+          mode: 'no-cors'
+        });
+        console.log('Initial webhook response status:', response.status);
+      } else {
+        console.log('🧪 DEV MODE: Would send initial webhook:', webhookData);
+      }
 
-      const response = await fetch('https://hook.us1.make.com/r1kbh1gkk5j31prdnhcn1dq8hsk2gyd9', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(webhookData),
-        mode: 'no-cors'
-      });
-
-      console.log('Initial webhook response status:', response.status);
-
-      // Fire CompleteRegistration pixel event with event ID for deduplication
-      if (typeof window !== 'undefined' && window.fbq) {
+      // Fire CompleteRegistration pixel event (only if not dev mode)
+      if (typeof window !== 'undefined' && window.fbq && !devMode) {
         window.fbq('track', 'CompleteRegistration', {
           content_name: 'Webinar Registration',
           value: 12,
           currency: 'USD'
         }, { eventID: eventId });
+      } else if (devMode) {
+        console.log('🧪 DEV MODE: Would fire CompleteRegistration pixel event');
       }
 
       setCurrentStep((prev) => prev + 1);
@@ -140,46 +160,44 @@ export default function MedicareLanding() {
 
   const handleFinalSubmit = async (finalData) => {
     setIsSubmitting(true);
-    const eventId = pixelEventId; // Use the same event ID
+    const eventId = pixelEventId;
     const fullLeadData = { ...formData, ...finalData };
     setFormData(fullLeadData);
 
     try {
-      // Send complete form data with pixel event ID to Make.com
       const webhookData = {
         ...fullLeadData,
-        pixel_event_id: eventId, // This ID is now always generated and sent
+        pixel_event_id: eventId,
         pixel_event_name: 'CompleteRegistration',
         registration_completed_at: new Date().toISOString()
       };
 
-      console.log('Sending final webhook data (with event_id):', webhookData);
-
-      const response = await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(webhookData),
-        mode: 'no-cors'
-      });
-
-      console.log('Final webhook response status:', response.status);
-
-      localStorage.removeItem('webinarFormData');
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      window.location.href = 'https://go.easykindmedicare.com/confirmation-webinar-7550';
+      if (!devMode) {
+        console.log('Sending final webhook data (with event_id):', webhookData);
+        const response = await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(webhookData),
+          mode: 'no-cors'
+        });
+        console.log('Final webhook response status:', response.status);
+        localStorage.removeItem('webinarFormData');
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        window.location.href = 'https://go.easykindmedicare.com/confirmation-webinar-7550';
+      } else {
+        console.log('🧪 DEV MODE: Would send final webhook:', webhookData);
+        console.log('🧪 DEV MODE: Form completed! Check console for all collected data.');
+        alert('✅ Test completed! Check browser console for data that would be sent.');
+      }
     } catch (error) {
       console.error('Error on final submit webhook:', error);
-      console.error('Full error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-
-      localStorage.removeItem('webinarFormData');
-      window.location.href = 'https://go.easykindmedicare.com/confirmation-webinar-7550';
+      if (!devMode) {
+        localStorage.removeItem('webinarFormData');
+        window.location.href = 'https://go.easykindmedicare.com/confirmation-webinar-7550';
+      }
     }
   };
 
@@ -255,6 +273,13 @@ export default function MedicareLanding() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center px-4 py-8">
+      {/* Dev Mode Indicator */}
+      {devMode && (
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 z-50 font-semibold">
+          🧪 DEV MODE ACTIVE - No data will be sent to webhooks or pixels
+        </div>
+      )}
+      
       <div className="w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
