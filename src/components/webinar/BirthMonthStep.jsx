@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Calendar } from 'lucide-react';
 
@@ -8,10 +8,14 @@ const months = [
 ];
 
 export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBack }) {
+  const [selected, setSelected] = useState(selectedMonth || '');
 
   const handleMonthSelect = (month) => {
-    // Immediately proceed to next step when month is selected
-    onNext(month);
+    setSelected(month);
+    // Small delay to show selection, then advance
+    setTimeout(() => {
+      onNext(month);
+    }, 150);
   };
 
   return (
@@ -29,7 +33,7 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-xl md:text-2xl font-bold text-[#0D2C4C] mb-2">
+          className="text-2xl font-bold text-[#0D2C4C] mb-2">
           What month were you born, {firstName}?
         </motion.h2>
 
@@ -37,7 +41,7 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-gray-600 text-sm">
+          className="text-gray-600">
           Tap your birth month to continue
         </motion.p>
       </div>
@@ -46,27 +50,28 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="grid grid-cols-2 md:grid-cols-3 gap-2">
-        {months.map((month, index) => (
-          <motion.button
+        className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {months.map((month) => (
+          <button
             key={month}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * index }}
             onClick={() => handleMonthSelect(month)}
-            className="p-3 md:p-4 rounded-xl border-2 text-center transition-all duration-200 bg-white hover:border-[#FFB400] hover:bg-[#FFB400]/5 text-gray-700 active:scale-95 touch-manipulation min-h-[3rem] flex items-center justify-center">
-            <div className="font-semibold text-sm md:text-base">{month}</div>
-          </motion.button>
+            className={`p-3 md:p-4 rounded-xl border-2 text-center transition-all duration-200 touch-manipulation ${
+              selected === month
+                ? 'border-[#FFB400] bg-[#FFB400]/10 text-[#0D2C4C] shadow-md'
+                : 'border-gray-200 bg-white hover:border-[#FFB400]/50 hover:bg-[#FFB400]/5 text-gray-700'
+            }`}>
+            <div className="font-semibold">{month}</div>
+          </button>
         ))}
       </motion.div>
 
-      <div className="flex justify-start pt-4">
+      <div className="flex gap-3 pt-4">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
           onClick={onBack}
-          className="flex items-center px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors touch-manipulation">
+          className="flex items-center px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
           <ChevronLeft className="w-4 h-4 mr-2" />
           Back
         </motion.button>
