@@ -1,61 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Calendar } from 'lucide-react';
-import { nextTuesday, nextThursday, format, addDays } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { Check } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 
 const getNextEventDates = () => {
   const now = new Date();
-  const timezone = 'America/New_York'; // This handles EST/EDT automatically
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  // Get next Tuesday and Thursday dates
-  let tuesdayDate = nextTuesday(now);
-  let thursdayDate = nextThursday(now);
+  // Find next Tuesday and Thursday
+  const daysUntilTuesday = (2 - today.getDay() + 7) % 7 || 7;
+  const daysUntilThursday = (4 - today.getDay() + 7) % 7 || 7;
 
-  // Create times in EST timezone, then convert to UTC
-  let tue11 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
-  let tue1830 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T18:30:00`, timezone);
-  let thu11 = zonedTimeToUtc(`${thursdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
+  const nextTue = addDays(today, daysUntilTuesday);
+  const nextThu = addDays(today, daysUntilThursday);
 
-  // If times have passed, get next week
-  if (now > tue11) {
-    tuesdayDate = addDays(tuesdayDate, 7);
-    tue11 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
-  }
-  if (now > tue1830) {
-    tuesdayDate = addDays(nextTuesday(now), 7);
-    tue1830 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T18:30:00`, timezone);
-  }
-  if (now > thu11) {
-    thursdayDate = addDays(thursdayDate, 7);
-    thu11 = zonedTimeToUtc(`${thursdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
-  }
-
+  // Create options with hardcoded UTC times
   const options = [
     {
-      id: tue11.toISOString(),
+      id: `${nextTue.toISOString().split('T')[0]}T16:00:00.000Z`, // 11 AM EST = 4 PM UTC
       time: '11:00 AM EST',
       day: 'Tuesday',
-      date: format(tue11, 'MMMM do'),
-      dateTime: tue11
+      date: format(nextTue, 'MMMM do'),
+      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T16:00:00.000Z`)
     },
     {
-      id: tue1830.toISOString(),
+      id: `${nextTue.toISOString().split('T')[0]}T23:30:00.000Z`, // 6:30 PM EST = 11:30 PM UTC
       time: '6:30 PM EST',
-      day: 'Tuesday',
-      date: format(tue1830, 'MMMM do'),
-      dateTime: tue1830
+      day: 'Tuesday', 
+      date: format(nextTue, 'MMMM do'),
+      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T23:30:00.000Z`)
     },
     {
-      id: thu11.toISOString(),
+      id: `${nextThu.toISOString().split('T')[0]}T16:00:00.000Z`, // 11 AM EST = 4 PM UTC
       time: '11:00 AM EST',
       day: 'Thursday',
-      date: format(thu11, 'MMMM do'),
-      dateTime: thu11
+      date: format(nextThu, 'MMMM do'), 
+      dateTime: new Date(`${nextThu.toISOString().split('T')[0]}T16:00:00.000Z`)
     }
   ];
 
-  return options.sort((a, b) => a.dateTime - b.dateTime);
+  // Filter out past times and sort
+  return options
+    .filter(option => option.dateTime > now)
+    .sort((a, b) => a.dateTime - b.dateTime)
+    .slice(0, 3); // Keep next 3 upcoming sessions
 };
 
 export default function TimeSelectionStep({ selectedTime, onTimeSelect }) {
@@ -65,84 +53,71 @@ export default function TimeSelectionStep({ selectedTime, onTimeSelect }) {
   useEffect(() => {
     const counts = {};
     timeOptions.forEach((option) => {
-      // Generate a random number between 8 and 23
-      counts[option.id] = Math.floor(Math.random() * (21 - 6 + 1)) + 6;
+      counts[option.id] = Math.floor(Math.random() * 15) + 6; // 6-20 seats
     });
     setSeatCounts(counts);
-  }, []); // Empty dependency array ensures this runs only once on mount
-
+  }, []);
 
   const handleSelection = (timeId) => {
     setTimeout(() => {
       onTimeSelect(timeId);
-    }, 400);
+    }, 300);
   };
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
       className="space-y-4">
 
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-[#0D2C4C] mb-2">Reserve Your Webinar Seat & Time
-
+        <h2 className="text-2xl font-bold text-[#0D2C4C] mb-2">
+          Reserve Your Webinar Seat & Time
         </h2>
-        <p className="text-gray-600 text-sm">5-Star ⭐⭐⭐⭐⭐ Rated
-
-        </p>
+        <p className="text-gray-600 text-sm">5-Star ⭐⭐⭐⭐⭐ Rated</p>
       </div>
 
       <div className="space-y-3">
-        {timeOptions.map((option, index) =>
-        <motion.div
-          key={option.id}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
-          selectedTime === option.id ?
-          'border-[#FFB400] bg-gradient-to-r from-[#FFB400]/10 to-[#FF8C00]/5 shadow-lg' :
-          'border-gray-200 bg-white hover:border-[#FFB400]/50 hover:shadow-md'}`
-          }
-          onClick={() => handleSelection(option.id)}>
-
-            {selectedTime === option.id &&
+        {timeOptions.map((option) => (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute top-3 right-3 w-6 h-6 bg-[#FFB400] rounded-full flex items-center justify-center">
+            key={option.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+              selectedTime === option.id
+                ? 'border-[#FFB400] bg-[#FFB400]/10 shadow-lg'
+                : 'border-gray-200 bg-white hover:border-[#FFB400]/50'
+            }`}
+            onClick={() => handleSelection(option.id)}>
 
-                <Check className="w-4 h-4 text-[#0D2C4C]" />
-              </motion.div>
-          }
+            {selectedTime === option.id && (
+              <div className="absolute top-3 right-3 w-6 h-6 bg-[#FFB400] rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            )}
             
             <div className="flex items-center space-x-4">
-              <div className="text-center w-16 flex-shrink-0">
-                  <p className="font-bold text-lg text-[#0D2C4C]">{option.day}</p>
-                  <p className="text-sm text-gray-500">{option.date}</p>
+              <div className="text-center w-16">
+                <p className="font-bold text-lg text-[#0D2C4C]">{option.day}</p>
+                <p className="text-sm text-gray-500">{option.date}</p>
               </div>
               <div className="border-l border-gray-200 pl-4 flex-1">
                 <h3 className="font-bold text-[#0D2C4C] text-lg mb-1">
                   {option.time}
                 </h3>
-                 <div className="flex items-center space-x-2">
-                    <div className="bg-green-100 text-green-800 px-3 py-1 text-xs font-semibold rounded-full">
-                        Free
-                    </div>
-                    {seatCounts[option.id] &&
-                <div className="text-orange-600 text-xs font-bold">
-                            Only {seatCounts[option.id]} seats left!
-                        </div>
-                }
+                <div className="flex items-center space-x-2">
+                  <div className="bg-green-100 text-green-800 px-3 py-1 text-xs font-semibold rounded-full">
+                    Free
+                  </div>
+                  <div className="text-orange-600 text-xs font-bold">
+                    Only {seatCounts[option.id]} seats left!
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
-        )}
+        ))}
       </div>
-    </motion.div>);
-
+    </motion.div>
+  );
 }
