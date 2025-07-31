@@ -2,21 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Calendar } from 'lucide-react';
 import { nextTuesday, nextThursday, format, addDays } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 
 const getNextEventDates = () => {
   const now = new Date();
-  let tue11 = nextTuesday(now);
-  tue11.setHours(11, 0, 0, 0);
+  const timezone = 'America/New_York'; // This handles EST/EDT automatically
 
-  let tue1830 = nextTuesday(now);
-  tue1830.setHours(18, 30, 0, 0);
+  // Get next Tuesday and Thursday dates
+  let tuesdayDate = nextTuesday(now);
+  let thursdayDate = nextThursday(now);
 
-  let thu11 = nextThursday(now);
-  thu11.setHours(11, 0, 0, 0);
+  // Create times in EST timezone, then convert to UTC
+  let tue11 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
+  let tue1830 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T18:30:00`, timezone);
+  let thu11 = zonedTimeToUtc(`${thursdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
 
-  if (now > tue11) tue11 = addDays(tue11, 7);
-  if (now > tue1830) tue1830 = addDays(tue1830, 7);
-  if (now > thu11) thu11 = addDays(thu11, 7);
+  // If times have passed, get next week
+  if (now > tue11) {
+    tuesdayDate = addDays(tuesdayDate, 7);
+    tue11 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
+  }
+  if (now > tue1830) {
+    tuesdayDate = addDays(nextTuesday(now), 7);
+    tue1830 = zonedTimeToUtc(`${tuesdayDate.toISOString().split('T')[0]}T18:30:00`, timezone);
+  }
+  if (now > thu11) {
+    thursdayDate = addDays(thursdayDate, 7);
+    thu11 = zonedTimeToUtc(`${thursdayDate.toISOString().split('T')[0]}T11:00:00`, timezone);
+  }
 
   const options = [
     {
@@ -24,25 +37,24 @@ const getNextEventDates = () => {
       time: '11:00 AM EST',
       day: 'Tuesday',
       date: format(tue11, 'MMMM do'),
-      dateTime: tue11 // Add this for sorting
+      dateTime: tue11
     },
     {
       id: tue1830.toISOString(),
       time: '6:30 PM EST',
       day: 'Tuesday',
       date: format(tue1830, 'MMMM do'),
-      dateTime: tue1830 // Add this for sorting
+      dateTime: tue1830
     },
     {
       id: thu11.toISOString(),
       time: '11:00 AM EST',
       day: 'Thursday',
       date: format(thu11, 'MMMM do'),
-      dateTime: thu11 // Add this for sorting
+      dateTime: thu11
     }
   ];
 
-  // Sort by actual date/time chronologically
   return options.sort((a, b) => a.dateTime - b.dateTime);
 };
 
