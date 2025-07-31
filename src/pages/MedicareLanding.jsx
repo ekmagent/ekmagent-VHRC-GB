@@ -116,7 +116,7 @@ export default function MedicareLanding() {
         email: leadData.email,
         phone: leadData.phone,
         webinarTime: leadData.webinarTime,
-        webinarTime_unix: new Date(leadData.webinarTime).getTime() / 1000,
+        webinarTime_unix: Math.floor(new Date(leadData.webinarTime).getTime() / 1000),
         ...(leadData.utm_source && { utm_source: leadData.utm_source }),
         ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
         pixel_event_id: eventId
