@@ -30,7 +30,9 @@ export default function MedicareLanding() {
     currentInsurance: '',
     insuranceCost: '', // Added new field
     utm_source: '',
-    utm_campaign: ''
+    utm_medium: '',      // ← Add this
+    utm_campaign: '',
+    utm_content: '',     // ← Add this
   });
   const [pixelEventId, setPixelEventId] = useState('');
   
@@ -60,11 +62,14 @@ export default function MedicareLanding() {
       console.log('🧪 DEV MODE: Skipped PageView pixel event');
     }
     
-    setFormData((prev) => ({
-      ...prev,
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmData = {
       utm_source: urlParams.get('utm_source') || '',
-      utm_campaign: urlParams.get('utm_campaign') || ''
-    }));
+      utm_medium: urlParams.get('utm_medium') || '',      // ← Add this
+      utm_campaign: urlParams.get('utm_campaign') || '',
+      utm_content: urlParams.get('utm_content') || '',    // ← Add this
+    };
+    setFormData(prev => ({ ...prev, ...utmData }));
     
     const savedData = localStorage.getItem('webinarFormData');
     if (savedData) {
@@ -118,7 +123,9 @@ export default function MedicareLanding() {
         webinarTime: leadData.webinarTime,
         webinarTime_unix: Math.floor(new Date(leadData.webinarTime).getTime() / 1000),
         ...(leadData.utm_source && { utm_source: leadData.utm_source }),
+        ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),      // ← Add this
         ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
+        ...(leadData.utm_content && { utm_content: leadData.utm_content }),    // ← Add this
         pixel_event_id: eventId
       };
 
