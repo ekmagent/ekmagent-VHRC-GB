@@ -42,10 +42,19 @@ export default function MedicareLanding() {
   const totalSteps = 11; // Time (0), FirstName (1), LastName (2), Email (3), Phone (4), Consent (5), BirthMonth (6), BirthYear (7), Insurance (8), InsuranceCost (9)
 
   useEffect(() => {
-    // Check for dev mode via URL parameter
+    // Single urlParams declaration
     const urlParams = new URLSearchParams(window.location.search);
     const isDevMode = urlParams.get('dev') === 'true';
     setDevMode(isDevMode);
+    
+    // Extract UTM parameters from the same urlParams
+    const utmData = {
+      utm_source: urlParams.get('utm_source') || '',
+      utm_medium: urlParams.get('utm_medium') || '',
+      utm_campaign: urlParams.get('utm_campaign') || '',
+      utm_content: urlParams.get('utm_content') || '',
+    };
+    setFormData(prev => ({ ...prev, ...utmData }));
     
     // Log current mode for clarity
     if (isDevMode) {
@@ -61,15 +70,6 @@ export default function MedicareLanding() {
     } else if (isDevMode) {
       console.log('🧪 DEV MODE: Skipped PageView pixel event');
     }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmData = {
-      utm_source: urlParams.get('utm_source') || '',
-      utm_medium: urlParams.get('utm_medium') || '',      // ← Add this
-      utm_campaign: urlParams.get('utm_campaign') || '',
-      utm_content: urlParams.get('utm_content') || '',    // ← Add this
-    };
-    setFormData(prev => ({ ...prev, ...utmData }));
     
     const savedData = localStorage.getItem('webinarFormData');
     if (savedData) {
