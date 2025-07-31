@@ -14,28 +14,34 @@ const getNextEventDates = () => {
   const nextTue = addDays(today, daysUntilTuesday);
   const nextThu = addDays(today, daysUntilThursday);
 
-  // Create options with hardcoded UTC times
+  // Check if date is in daylight saving time (March - November)
+  const isDST = (date) => {
+    const month = date.getMonth();
+    return month >= 2 && month <= 10; // March (2) through November (10)
+  };
+
+  // Create options with correct UTC times for EST/EDT
   const options = [
     {
-      id: `${nextTue.toISOString().split('T')[0]}T16:00:00.000Z`, // 11 AM EST = 4 PM UTC
+      id: `${nextTue.toISOString().split('T')[0]}T${isDST(nextTue) ? '15:00' : '16:00'}:00.000Z`, // 11 AM EST/EDT
       time: '11:00 AM EST',
       day: 'Tuesday',
       date: format(nextTue, 'MMMM do'),
-      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T16:00:00.000Z`)
+      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T${isDST(nextTue) ? '15:00' : '16:00'}:00.000Z`)
     },
     {
-      id: `${nextTue.toISOString().split('T')[0]}T23:30:00.000Z`, // 6:30 PM EST = 11:30 PM UTC
+      id: `${nextTue.toISOString().split('T')[0]}T${isDST(nextTue) ? '22:30' : '23:30'}:00.000Z`, // 6:30 PM EST/EDT
       time: '6:30 PM EST',
       day: 'Tuesday', 
       date: format(nextTue, 'MMMM do'),
-      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T23:30:00.000Z`)
+      dateTime: new Date(`${nextTue.toISOString().split('T')[0]}T${isDST(nextTue) ? '22:30' : '23:30'}:00.000Z`)
     },
     {
-      id: `${nextThu.toISOString().split('T')[0]}T16:00:00.000Z`, // 11 AM EST = 4 PM UTC
+      id: `${nextThu.toISOString().split('T')[0]}T${isDST(nextThu) ? '15:00' : '16:00'}:00.000Z`, // 11 AM EST/EDT
       time: '11:00 AM EST',
       day: 'Thursday',
       date: format(nextThu, 'MMMM do'), 
-      dateTime: new Date(`${nextThu.toISOString().split('T')[0]}T16:00:00.000Z`)
+      dateTime: new Date(`${nextThu.toISOString().split('T')[0]}T${isDST(nextThu) ? '15:00' : '16:00'}:00.000Z`)
     }
   ];
 
