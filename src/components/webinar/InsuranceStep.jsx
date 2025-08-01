@@ -3,11 +3,13 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const insuranceOptions = [
-    { title: 'Medicare', subtext: 'Already enrolled in Part A or B' },
+    { title: 'Medicare', subtext: 'Already have Part A or B' },
     { title: 'Employer / Spouse Plan', subtext: 'Insurance through a job (non-federal/state)' },
     { title: 'Marketplace (ACA)', subtext: 'Plan from HealthCare.gov' },
     { title: 'Medicaid', subtext: 'State health program' },
     { title: 'Federal / State Employee', subtext: 'Government employee benefits' },
+    { title: 'Tricare', subtext: 'Military health coverage' },
+    { title: 'VA Benefits', subtext: 'Veterans Affairs healthcare' },
     { title: 'Other / Uninsured', subtext: '' },
 ];
 
@@ -25,7 +27,7 @@ export default function InsuranceStep({ firstName, onNext, onBack, isSubmitting 
         >
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">What's your current insurance, {firstName}?</h2>
-                <p className="text-gray-600 text-lg">Just one last question!</p>
+                <p className="text-gray-600 text-lg">Almost done!</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {insuranceOptions.map((option, index) => (
