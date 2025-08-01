@@ -10,9 +10,9 @@ const costOptions = [
     "I'm not sure"
 ];
 
-export default function InsuranceCostStep({ firstName, onSubmit, onBack, isSubmitting }) {
+export default function InsuranceCostStep({ firstName, onNext, onBack, isSubmitting }) {
     const handleSelect = (option) => {
-        onSubmit(option);
+        onNext(option);
     };
 
     return (

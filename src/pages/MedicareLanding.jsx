@@ -313,7 +313,7 @@ export default function MedicareLanding() {
       case 9:
         return <InsuranceCostStep
           firstName={formData.firstName}
-          onNext={(insuranceCost) => nextStep({ insuranceCost })}
+          onNext={(insuranceCost) => nextStep({ insuranceCost })} // Changed from onSubmit to onNext
           onBack={prevStep}
           isSubmitting={isSubmitting} />;
 
