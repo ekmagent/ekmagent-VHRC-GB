@@ -291,25 +291,25 @@ export default function MedicareLanding() {
           isSubmitting={isSubmitting} />;
 
       case 6:
-        return <MedicareJourneyStep
-          firstName={formData.firstName}
-          onNext={(medicareJourney) => nextStep({ medicareJourney })}
-          onBack={prevStep}
-          isSubmitting={isSubmitting} />;
-
-      case 7:
         return <BirthMonthStep
           firstName={formData.firstName}
           selectedMonth={formData.birthMonth}
           onNext={(birthMonth) => nextStep({ birthMonth })}
           onBack={prevStep} />;
 
-      case 8:
+      case 7:
         return <BirthYearStep
           firstName={formData.firstName}
           selectedYear={formData.birthYear}
           onNext={(birthYear) => nextStep({ birthYear })}
           onBack={prevStep} />;
+
+      case 8:
+        return <MedicareJourneyStep
+          firstName={formData.firstName}
+          onNext={(medicareJourney) => nextStep({ medicareJourney })}
+          onBack={prevStep}
+          isSubmitting={isSubmitting} />;
 
       case 9:
         return <InsuranceStep
