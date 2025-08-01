@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const journeyOptions = [
   'Just starting out—learning the basics',
   'Comparing plans and considering my options',
-  'Ready to get expert help and enroll soon',
+  'Ready to get this over with and enroll soon',
   'I already have a broker or agent, but want a second opinion',
   'I just have a quick question or need clarification',
   'Other / Not sure'
