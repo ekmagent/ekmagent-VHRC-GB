@@ -23,10 +23,54 @@ export default function PhoneStep({ formData, onNext, onBack }) {
     setPhone(formatted);
   };
 
+  // Add phone validation function
+  const isValidPhone = (phoneNumber) => {
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    
+    // Check if it's 10 digits
+    if (cleaned.length !== 10) return false;
+    
+    // Check for invalid patterns
+    const invalidPatterns = [
+      /^0{10}$/, // All zeros: 0000000000
+      /^1{10}$/, // All ones: 1111111111
+      /^2{10}$/, // All twos: 2222222222
+      /^3{10}$/, // All threes, etc...
+      /^4{10}$/,
+      /^5{10}$/,
+      /^6{10}$/,
+      /^7{10}$/,
+      /^8{10}$/,
+      /^9{10}$/,
+      /^1234567890$/, // Sequential
+      /^0123456789$/, // Sequential
+      /^(\d)\1{9}$/, // Any digit repeated 10 times
+    ];
+    
+    // Check if phone matches any invalid pattern
+    for (const pattern of invalidPatterns) {
+      if (pattern.test(cleaned)) return false;
+    }
+    
+    // Check area code (first 3 digits) - can't start with 0 or 1
+    const areaCode = cleaned.substring(0, 3);
+    if (areaCode.startsWith('0') || areaCode.startsWith('1')) return false;
+    
+    // Check exchange code (digits 4-6) - can't start with 0 or 1
+    const exchangeCode = cleaned.substring(3, 6);
+    if (exchangeCode.startsWith('0') || exchangeCode.startsWith('1')) return false;
+    
+    return true;
+  };
+
   const handleNext = () => {
     const cleaned = phone?.replace(/\D/g, '') || '';
     if (cleaned.length < 10) {
       setError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      setError('Please enter a valid phone number.');
       return;
     }
     setError('');
@@ -49,7 +93,7 @@ export default function PhoneStep({ formData, onNext, onBack }) {
     >
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Last detail, {formData.firstName}: where should we send reminders to?
+          Almost done: where should we send your reminders?
         </h2>
         <p className="text-gray-600 text-lg">
           We respect your privacy. Your number is never shared.
