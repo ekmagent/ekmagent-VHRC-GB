@@ -14,6 +14,7 @@ import InsuranceStep from '../components/webinar/InsuranceStep';
 import InsuranceCostStep from '../components/webinar/InsuranceCostStep';
 import BirthMonthStep from '../components/webinar/BirthMonthStep';
 import BirthYearStep from '../components/webinar/BirthYearStep';
+import MedicareJourneyStep from '../components/webinar/MedicareJourneyStep';
 
 export default function MedicareLanding() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -25,6 +26,7 @@ export default function MedicareLanding() {
     phone: '',
     webinarTime: '',
     consent: false,
+    medicareJourney: '', // ADD THIS FIELD
     birthMonth: '',
     birthYear: '',
     currentInsurance: '',
@@ -39,7 +41,7 @@ export default function MedicareLanding() {
   const [inactivityTimer, setInactivityTimer] = useState(null);
   const [partialSent, setPartialSent] = useState(false);
 
-  const totalSteps = 11;
+  const totalSteps = 12; // Change from 11 to 12
 
   const sendPartialData = async (data) => {
     if (data.consent && !partialSent && !devMode) {
@@ -289,26 +291,33 @@ export default function MedicareLanding() {
           isSubmitting={isSubmitting} />;
 
       case 6:
+        return <MedicareJourneyStep
+          firstName={formData.firstName}
+          onNext={(medicareJourney) => nextStep({ medicareJourney })}
+          onBack={prevStep}
+          isSubmitting={isSubmitting} />;
+
+      case 7:
         return <BirthMonthStep
           firstName={formData.firstName}
           selectedMonth={formData.birthMonth}
           onNext={(birthMonth) => nextStep({ birthMonth })}
           onBack={prevStep} />;
 
-      case 7:
+      case 8:
         return <BirthYearStep
           firstName={formData.firstName}
           selectedYear={formData.birthYear}
           onNext={(birthYear) => nextStep({ birthYear })}
           onBack={prevStep} />;
 
-      case 8:
+      case 9:
         return <InsuranceStep
           firstName={formData.firstName}
           onNext={(currentInsurance) => nextStep({ currentInsurance })}
           onBack={prevStep} />;
 
-      case 9:
+      case 10:
         return <InsuranceCostStep
           firstName={formData.firstName}
           onSubmit={(insuranceCost) => handleFinalSubmit({ insuranceCost })}
