@@ -42,7 +42,7 @@ export default function BirthMonthStep({ firstName, selectedMonth, onNext, onBac
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="text-gray-600">
-          Tap your birth month to continue
+          We use this to personalize the webinar.
         </motion.p>
       </div>
 

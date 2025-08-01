@@ -52,7 +52,7 @@ export default function PhoneStep({ formData, onNext, onBack }) {
           Last detail, {formData.firstName}: where should we send reminders to?
         </h2>
         <p className="text-gray-600 text-lg">
-          We do not share your phone number with anyone.
+          We respect your privacy. Your number is never shared.
         </p>
       </div>
 
