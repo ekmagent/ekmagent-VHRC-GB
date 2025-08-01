@@ -3,13 +3,11 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const costOptions = [
-    'Less than $100/month',
-    '$100-300/month', 
-    '$300-500/month',
-    '$500+/month',
-    'Not sure, but it\'s expensive',
-    'Not sure, but it\'s cheap',
-    'Nothing (no premium)'
+    "I don't pay anything",
+    'Feels affordable',
+    'Feels a bit expensive', 
+    'Feels very expensive',
+    "I'm not sure"
 ];
 
 export default function InsuranceCostStep({ firstName, onSubmit, onBack, isSubmitting }) {
@@ -26,9 +24,9 @@ export default function InsuranceCostStep({ firstName, onSubmit, onBack, isSubmi
         >
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-                    How much are you paying for health insurance currently, {firstName}?
+                    How do your health insurance costs feel overall, {firstName}?
                 </h2>
-                <p className="text-gray-600 text-lg">This helps us understand your situation better.</p>
+                <p className="text-gray-600 text-lg">No need for exact numbers—just your impression.</p>
             </div>
             <div className="flex flex-col space-y-3">
                 {costOptions.map((option, index) => (
