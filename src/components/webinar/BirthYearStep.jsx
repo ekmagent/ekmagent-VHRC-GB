@@ -6,7 +6,7 @@ export default function BirthYearStep({ firstName, selectedYear, onNext, onBack 
   const [selected, setSelected] = useState(selectedYear || '');
 
   const getCurrentYearOptions = () => {
-    const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear(); // 2025
     return [
       { 
         value: 'already_65', 
@@ -14,18 +14,18 @@ export default function BirthYearStep({ firstName, selectedYear, onNext, onBack 
         description: "Currently enrolled in Medicare"
       },
       { 
-        value: currentYear - 64, 
-        label: `${currentYear - 64}`,
+        value: currentYear - 65, // 2025 - 65 = 1960
+        label: `${currentYear - 65}`, // "1960"
         description: "Turning 65 this year"
       },
       { 
-        value: currentYear - 63, 
-        label: `${currentYear - 63}`,
+        value: currentYear - 64, // 2025 - 64 = 1961
+        label: `${currentYear - 64}`, // "1961"
         description: "Turning 64 this year"
       },
       { 
-        value: currentYear - 62, 
-        label: `${currentYear - 62}`,
+        value: currentYear - 63, // 2025 - 63 = 1962
+        label: `${currentYear - 63}`, // "1962"
         description: "Turning 63 this year"
       }
     ];
