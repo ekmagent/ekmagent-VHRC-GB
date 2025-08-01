@@ -37,7 +37,7 @@ export default function FirstNameStep({ formData, onNext, onBack }) {
           What's your first name?
         </h2>
         <p className="text-gray-600 text-lg">
-          We'll use this to personalize your experience.
+          
         </p>
       </div>
 
