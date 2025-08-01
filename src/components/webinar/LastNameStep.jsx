@@ -34,11 +34,8 @@ export default function LastNameStep({ formData, onNext, onBack }) {
     >
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Nice to meet you, {formData.firstName}! What's your last name?
+          And your last name?
         </h2>
-        <p className="text-gray-600 text-lg">
-          Just need your last name to complete your registration.
-        </p>
       </div>
 
       <div className="relative">
