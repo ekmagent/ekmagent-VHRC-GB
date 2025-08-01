@@ -21,12 +21,12 @@ export default function BirthYearStep({ firstName, selectedYear, onNext, onBack 
       { 
         value: currentYear - 64, // 2025 - 64 = 1961
         label: `${currentYear - 64}`, // "1961"
-        description: "Turning 64 this year"
+        description: ""
       },
       { 
         value: currentYear - 63, // 2025 - 63 = 1962
         label: `${currentYear - 63}`, // "1962"
-        description: "Turning 63 this year"
+        description: ""
       }
     ];
   };
