@@ -305,24 +305,24 @@ export default function MedicareLanding() {
           onBack={prevStep} />;
 
       case 8:
-        return <MedicareJourneyStep
-          firstName={formData.firstName}
-          onNext={(medicareJourney) => nextStep({ medicareJourney })}
-          onBack={prevStep}
-          isSubmitting={isSubmitting} />;
-
-      case 9:
         return <InsuranceStep
           firstName={formData.firstName}
           onNext={(currentInsurance) => nextStep({ currentInsurance })}
           onBack={prevStep} />;
 
-      case 10:
+      case 9:
         return <InsuranceCostStep
           firstName={formData.firstName}
-          onSubmit={(insuranceCost) => handleFinalSubmit({ insuranceCost })}
+          onNext={(insuranceCost) => nextStep({ insuranceCost })}
           onBack={prevStep}
           isSubmitting={isSubmitting} />;
+
+      case 10:
+        return <MedicareJourneyStep
+          firstName={formData.firstName}
+          onSubmit={(medicareJourney) => handleFinalSubmit({ medicareJourney })}
+          onBack={prevStep}
+          isSubmitting={isSubmitting} />; // MOVED TO LAST STEP
 
       default:
         return null;

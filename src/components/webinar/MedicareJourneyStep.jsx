@@ -11,9 +11,9 @@ const journeyOptions = [
   'Other / Not sure'
 ];
 
-export default function MedicareJourneyStep({ firstName, onNext, onBack, isSubmitting }) {
+export default function MedicareJourneyStep({ firstName, onSubmit, onBack, isSubmitting }) {
   const handleSelect = (option) => {
-    onNext(option);
+    onSubmit(option); // Changed from onNext to onSubmit
   };
 
   return (
