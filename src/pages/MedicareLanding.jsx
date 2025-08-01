@@ -25,29 +25,52 @@ export default function MedicareLanding() {
     phone: '',
     webinarTime: '',
     consent: false,
-    birthMonth: '',        // New field
-    birthYear: '',         // New field
+    birthMonth: '',
+    birthYear: '',
     currentInsurance: '',
-    insuranceCost: '', // Added new field
+    insuranceCost: '',
     utm_source: '',
-    utm_medium: '',      // ← Add this
+    utm_medium: '',
     utm_campaign: '',
-    utm_content: '',     // ← Add this
+    utm_content: '',
   });
   const [pixelEventId, setPixelEventId] = useState('');
-  
-  // Add dev mode state (defaults to false for safety)
   const [devMode, setDevMode] = useState(false);
+  const [inactivityTimer, setInactivityTimer] = useState(null);
+  const [partialSent, setPartialSent] = useState(false);
 
-  const totalSteps = 11; // Time (0), FirstName (1), LastName (2), Email (3), Phone (4), Consent (5), BirthMonth (6), BirthYear (7), Insurance (8), InsuranceCost (9)
+  const totalSteps = 11;
+
+  const sendPartialData = async (data) => {
+    if (data.consent && !partialSent && !devMode) {
+      const partialWebhook = {
+        ...data,
+        completion_status: 'partial',
+        last_step: currentStep,
+        abandoned_at: new Date().toISOString(),
+        webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null
+      };
+      
+      try {
+        await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(partialWebhook),
+          mode: 'no-cors'
+        });
+        console.log('✅ Sent partial data:', partialWebhook);
+        setPartialSent(true);
+      } catch (error) {
+        console.error('Error sending partial data:', error);
+      }
+    }
+  };
 
   useEffect(() => {
-    // Single urlParams declaration
     const urlParams = new URLSearchParams(window.location.search);
     const isDevMode = urlParams.get('dev') === 'true';
     setDevMode(isDevMode);
     
-    // Extract UTM parameters from the same urlParams
     const utmData = {
       utm_source: urlParams.get('utm_source') || '',
       utm_medium: urlParams.get('utm_medium') || '',
@@ -56,7 +79,6 @@ export default function MedicareLanding() {
     };
     setFormData(prev => ({ ...prev, ...utmData }));
     
-    // Log current mode for clarity
     if (isDevMode) {
       console.log('🧪 DEV MODE ACTIVATED - No webhooks or pixels will fire');
       console.log('To disable dev mode, remove ?dev=true from URL');
@@ -64,7 +86,6 @@ export default function MedicareLanding() {
       console.log('✅ PRODUCTION MODE - Webhooks and pixels will fire normally');
     }
 
-    // Fire PageView pixel event on component mount (only if not dev mode)
     if (typeof window !== 'undefined' && window.fbq && !isDevMode) {
       window.fbq('track', 'PageView');
     } else if (isDevMode) {
@@ -88,6 +109,19 @@ export default function MedicareLanding() {
   const nextStep = async (dataToSave = {}) => {
     const updatedFormData = { ...formData, ...dataToSave };
     setFormData(updatedFormData);
+
+    // CLEAR any existing timer
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+
+    // START 3-minute timer after consent
+    if (updatedFormData.consent && !partialSent) {
+      const timer = setTimeout(() => {
+        sendPartialData(updatedFormData);
+      }, 3 * 60 * 1000); // 3 minutes
+      setInactivityTimer(timer);
+    }
 
     // Fire FB Pixel events for micro-conversions
     if (typeof window !== 'undefined' && window.fbq) {
@@ -123,9 +157,9 @@ export default function MedicareLanding() {
         webinarTime: leadData.webinarTime,
         webinarTime_unix: Math.floor(new Date(leadData.webinarTime).getTime() / 1000),
         ...(leadData.utm_source && { utm_source: leadData.utm_source }),
-        ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),      // ← Add this
+        ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),
         ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
-        ...(leadData.utm_content && { utm_content: leadData.utm_content }),    // ← Add this
+        ...(leadData.utm_content && { utm_content: leadData.utm_content }),
         pixel_event_id: eventId
       };
 
@@ -167,6 +201,12 @@ export default function MedicareLanding() {
 
   const handleFinalSubmit = async (finalData) => {
     setIsSubmitting(true);
+    
+    // CLEAR the timer - they're finishing!
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    
     const eventId = pixelEventId;
     const fullLeadData = { ...formData, ...finalData };
     setFormData(fullLeadData);
@@ -174,9 +214,11 @@ export default function MedicareLanding() {
     try {
       const webhookData = {
         ...fullLeadData,
+        completion_status: 'completed',
         pixel_event_id: eventId,
         pixel_event_name: 'CompleteRegistration',
-        registration_completed_at: new Date().toISOString()
+        registration_completed_at: new Date().toISOString(),
+        webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000)
       };
 
       if (!devMode) {
