@@ -26,7 +26,7 @@ export default function MedicareLanding() {
     phone: '',
     webinarTime: '',
     consent: false,
-    medicareJourney: '', // ADD THIS FIELD
+    medicareJourney: '',
     birthMonth: '',
     birthYear: '',
     currentInsurance: '',
@@ -35,11 +35,28 @@ export default function MedicareLanding() {
     utm_medium: '',
     utm_campaign: '',
     utm_content: '',
+    utm_term: '',
+    // Add Facebook tracking data
+    ip_address: '',
+    fbc: '',  // Facebook Click ID
+    fbp: '',  // Facebook Browser ID
+    user_agent: '',
+    referrer: '',
+    url: ''
   });
   const [pixelEventId, setPixelEventId] = useState('');
   const [devMode, setDevMode] = useState(false);
   const [inactivityTimer, setInactivityTimer] = useState(null);
   const [partialSent, setPartialSent] = useState(false);
+
+  // Add these state variables at the top
+  const [fbData, setFbData] = useState({
+    ip_address: '',
+    fbc: '',
+    fbp: '',
+    user_agent: '',
+    referrer: ''
+  });
 
   const totalSteps = 12; // Change from 11 to 12
 
@@ -102,6 +119,54 @@ export default function MedicareLanding() {
         console.error('Error loading saved form data:', error);
       }
     }
+
+    // Capture UTM parameters
+    const utmData = {
+      utm_source: urlParams.get('utm_source') || '',
+      utm_medium: urlParams.get('utm_medium') || '',
+      utm_campaign: urlParams.get('utm_campaign') || '',
+      utm_content: urlParams.get('utm_content') || '',
+      utm_term: urlParams.get('utm_term') || '',
+    };
+
+    // Capture Facebook data
+    const captureWebData = async () => {
+      try {
+        // Get IP address
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        
+        // Get Facebook Click ID from URL
+        const fbc = urlParams.get('fbclid') || '';
+        
+        // Get Facebook Browser ID from cookie
+        const fbp = getCookie('_fbp') || '';
+        
+        // Capture other data
+        const webData = {
+          ip_address: ipData.ip,
+          fbc: fbc,
+          fbp: fbp,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || '',
+          url: window.location.href
+        };
+        
+        setFbData(webData);
+        
+        // Update formData with all tracking data
+        setFormData(prev => ({
+          ...prev,
+          ...utmData,
+          ...webData
+        }));
+        
+      } catch (error) {
+        console.error('Error capturing web data:', error);
+      }
+    };
+
+    captureWebData();
   }, []);
 
   useEffect(() => {
@@ -152,17 +217,9 @@ export default function MedicareLanding() {
 
     try {
       const webhookData = {
-        firstName: leadData.firstName,
-        lastName: leadData.lastName,
-        email: leadData.email,
-        phone: leadData.phone,
-        webinarTime: leadData.webinarTime,
-        webinarTime_unix: Math.floor(new Date(leadData.webinarTime).getTime() / 1000),
-        ...(leadData.utm_source && { utm_source: leadData.utm_source }),
-        ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),
-        ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
-        ...(leadData.utm_content && { utm_content: leadData.utm_content }),
-        pixel_event_id: eventId
+        ...formData, // This now includes all FB tracking data
+        pixel_event_id: eventId,
+        completion_status: 'partial' // or 'completed'
       };
 
       if (!devMode) {
@@ -327,6 +384,14 @@ export default function MedicareLanding() {
       default:
         return null;
     }
+  };
+
+  // Helper function to get cookies
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
   };
 
   return (
