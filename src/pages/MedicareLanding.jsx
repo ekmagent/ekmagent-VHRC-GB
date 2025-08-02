@@ -173,6 +173,38 @@ export default function MedicareLanding() {
     localStorage.setItem('webinarFormData', JSON.stringify(formData));
   }, [formData]);
 
+  // Use Page Visibility API to capture form abandonment (better for Facebook in-app browser)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && formData.consent && !partialSent && !devMode) {
+        // Page became hidden - user likely left (especially good for Facebook browser)
+        const partialData = {
+          ...formData,
+          completion_status: 'abandoned_visibility_change',
+          last_step: currentStep,
+          abandoned_at: new Date().toISOString(),
+          webinarTime_unix: formData.webinarTime ? Math.floor(new Date(formData.webinarTime).getTime() / 1000) : null
+        };
+
+        navigator.sendBeacon(
+          'https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5',
+          JSON.stringify(partialData)
+        );
+        
+        console.log('📵 Page hidden - sent partial data:', partialData);
+        setPartialSent(true);
+      } else if (devMode && document.hidden) {
+        console.log('🧪 DEV MODE: Would send data on visibility change');
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [formData, currentStep, partialSent, devMode]);
+
   const nextStep = async (dataToSave = {}) => {
     const updatedFormData = { ...formData, ...dataToSave };
     setFormData(updatedFormData);
