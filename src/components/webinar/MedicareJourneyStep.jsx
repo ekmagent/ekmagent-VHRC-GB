@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const journeyOptions = [
   'Just starting out—learning the basics',
   'Comparing plans and considering my options',
-  'Ready to get this over with and enroll soon',
+  'Ready to get expert help and enroll soon',
   'I already have a broker or agent, but want a second opinion',
   'I just have a quick question or need clarification',
   'Other / Not sure'
@@ -44,7 +44,7 @@ export default function MedicareJourneyStep({ firstName, onSubmit, onBack, isSub
               variant="outline"
               onClick={() => handleSelect(option)}
               disabled={isSubmitting}
-              className="w-full h-auto text-left justify-start py-4 px-4 rounded-xl border-2 border-gray-200 hover:border-[#FFB400] hover:bg-white text-base"
+              className="w-full text-left justify-start py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-[#FFB400] hover:bg-white text-sm sm:text-base min-h-[56px] h-auto whitespace-normal break-words leading-snug"
             >
               {option}
             </Button>
