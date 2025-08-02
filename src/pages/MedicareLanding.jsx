@@ -168,25 +168,28 @@ export default function MedicareLanding() {
   // Use Page Visibility API to capture form abandonment (better for Facebook in-app browser)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && formData.consent && !partialSent && !devMode) {
-        // Page became hidden - user likely left (especially good for Facebook browser)
-        const partialData = {
-          ...formData,
-          completion_status: 'abandoned_visibility_change',
-          last_step: currentStep,
-          abandoned_at: new Date().toISOString(),
-          webinarTime_unix: formData.webinarTime ? Math.floor(new Date(formData.webinarTime).getTime() / 1000) : null
-        };
+      if (document.hidden && formData.consent && !partialSent) {
+        if (!devMode) {
+          // Page became hidden - user likely left (especially good for Facebook browser)
+          const partialData = {
+            ...formData,
+            completion_status: 'abandoned_visibility_change',
+            last_step: currentStep,
+            abandoned_at: new Date().toISOString(),
+            webinarTime_unix: formData.webinarTime ? Math.floor(new Date(formData.webinarTime).getTime() / 1000) : null
+          };
 
-        navigator.sendBeacon(
-          'https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5',
-          JSON.stringify(partialData)
-        );
-        
-        console.log('📵 Page hidden - sent partial data:', partialData);
-        setPartialSent(true);
-      } else if (devMode && document.hidden) {
-        console.log('🧪 DEV MODE: Would send data on visibility change');
+          navigator.sendBeacon(
+            'https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5',
+            JSON.stringify(partialData)
+          );
+          
+          console.log('📵 Page hidden - sent partial data:', partialData);
+          setPartialSent(true);
+        } else {
+          console.log('🧪 DEV MODE: Would send data on visibility change');
+          console.log('🧪 Visibility change detected but webhook blocked in dev mode');
+        }
       }
     };
 
