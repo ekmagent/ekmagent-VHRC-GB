@@ -1,0 +1,42 @@
+name: Quality Assurance
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dev-mode-protection:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run dev mode protection tests
+      run: npm test -- --testNamePattern="Dev Mode"
+      
+    - name: Check for dev mode bypasses
+      run: |
+        if grep -r "navigator\.sendBeacon" src/ | grep -v "if.*!devMode" | grep -v "else"; then
+          echo "❌ CRITICAL: Potential dev mode bypass detected!"
+          exit 1
+        fi
+        
+    - name: Validate webhook URLs
+      run: |
+        if grep -r "hook\.us1\.make\.com" src/ | grep -v -E "(r1kbh1gkk5j31prdnhcn1dq8hsk2gyd9|sdv55xk1d8iacpxbhnagymcgrkuf6ju5)"; then
+          echo "❌ CRITICAL: Unauthorized webhook URL detected!"
+          exit 1
+        fi
+        
+    - name: Build check
+      run: npm run build
