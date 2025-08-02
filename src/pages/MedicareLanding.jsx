@@ -67,10 +67,7 @@ export default function MedicareLanding() {
     event_id: '',
     action_source: 'website',
     external_id: '', // Hashed email for Facebook
-    em: '', // Hashed email for Facebook Conversions API
-    latitude: '',
-    longitude: '',
-    location_accuracy: ''
+    em: '' // Hashed email for Facebook Conversions API
   });
   const [pixelEventId, setPixelEventId] = useState('');
   const [devMode, setDevMode] = useState(false);
@@ -99,6 +96,17 @@ export default function MedicareLanding() {
           webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null,
           abandonment_reason: 'page_visibility_change'
         }, data.email);
+
+        // Skip webhook for low-quality traffic
+        if (enhancedData.tracking_skipped || enhancedData.is_ads_library || enhancedData.is_bot_traffic) {
+          console.log('🚫 Skipping partial webhook for low-quality traffic:', {
+            skip_reason: enhancedData.skip_reason,
+            is_ads_library: enhancedData.is_ads_library,
+            is_bot_traffic: enhancedData.is_bot_traffic
+          });
+          setPartialSent(true); // Mark as sent to avoid retries
+          return;
+        }
 
         // Enhance with comprehensive tracking data
         const partialWebhook = enhanceWebhookWithFacebookData({
@@ -326,6 +334,20 @@ export default function MedicareLanding() {
         currency: 'USD',
         content_name: 'Webinar Registration'
       }, leadData.email);
+
+      // Skip webhook for low-quality traffic but continue with form
+      if (enhancedData.tracking_skipped || enhancedData.is_ads_library || enhancedData.is_bot_traffic) {
+        console.log('🚫 Skipping initial webhook for low-quality traffic:', {
+          skip_reason: enhancedData.skip_reason,
+          is_ads_library: enhancedData.is_ads_library,
+          is_bot_traffic: enhancedData.is_bot_traffic
+        });
+        
+        // Still allow form progression for user experience
+        setCurrentStep((prev) => prev + 1);
+        setIsSubmitting(false);
+        return;
+      }
 
       // Enhance with Facebook Conversions API data
       const webhookData = enhanceWebhookWithFacebookData({

@@ -79,21 +79,7 @@ export const getAdvancedTrackingData = async () => {
     data.scroll_depth = 0; // Will be updated as user scrolls
     data.form_interactions = 0; // Will be updated as user fills form
     
-    // 11. GEOLOCATION (if permission granted)
-    if (navigator.geolocation) {
-      try {
-        const position = await getCurrentPosition();
-        data.latitude = position.coords.latitude;
-        data.longitude = position.coords.longitude;
-        data.location_accuracy = position.coords.accuracy;
-      } catch (error) {
-        // User denied location or error occurred
-        data.latitude = '';
-        data.longitude = '';
-      }
-    }
-
-    // 12. ADDITIONAL FACEBOOK SIGNALS
+    // 11. ADDITIONAL FACEBOOK SIGNALS
     data.event_time = Math.floor(Date.now() / 1000); // Unix timestamp
     data.event_id = generateUniqueId(); // Unique event identifier
     data.action_source = 'website'; // Facebook Conversions API requirement
@@ -130,15 +116,6 @@ export const getOrCreateSessionId = () => {
 
 export const generateUniqueId = () => {
   return 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-};
-
-export const getCurrentPosition = () => {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      timeout: 5000,
-      enableHighAccuracy: false
-    });
-  });
 };
 
 // Hash function for PII (Facebook Conversions API best practice)
