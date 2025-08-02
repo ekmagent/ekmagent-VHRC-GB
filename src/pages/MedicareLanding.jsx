@@ -95,6 +95,7 @@ export default function MedicareLanding() {
       utm_medium: urlParams.get('utm_medium') || '',
       utm_campaign: urlParams.get('utm_campaign') || '',
       utm_content: urlParams.get('utm_content') || '',
+      utm_term: urlParams.get('utm_term') || '',
     };
     setFormData(prev => ({ ...prev, ...utmData }));
     
@@ -119,15 +120,6 @@ export default function MedicareLanding() {
         console.error('Error loading saved form data:', error);
       }
     }
-
-    // Capture UTM parameters
-    const utmData = {
-      utm_source: urlParams.get('utm_source') || '',
-      utm_medium: urlParams.get('utm_medium') || '',
-      utm_campaign: urlParams.get('utm_campaign') || '',
-      utm_content: urlParams.get('utm_content') || '',
-      utm_term: urlParams.get('utm_term') || '',
-    };
 
     // Capture Facebook data
     const captureWebData = async () => {
