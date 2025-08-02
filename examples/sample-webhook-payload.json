@@ -1,0 +1,72 @@
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "(555) 123-4567",
+  "webinarTime": "2024-01-15T19:00:00Z",
+  "medicareJourney": "just-starting",
+  "birthYear": "1959",
+  "currentInsurance": "employer",
+  "insuranceCost": "$200-400",
+  
+  "completion_status": "completed",
+  "pixel_event_id": "event_1705329600_abc123def",
+  
+  "utm_source": "facebook",
+  "utm_medium": "cpc", 
+  "utm_campaign": "medicare-2024-q1",
+  "utm_content": "video-ad-1",
+  
+  "ip_address": "192.168.1.100",
+  "fbc": "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
+  "fbp": "fb.1.1554763741205.123456789",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+  "referrer": "https://www.facebook.com/",
+  "screen_resolution": "1920x1080",
+  "platform": "MacIntel",
+  "language": "en-US",
+  "timezone": "America/New_York",
+  "is_mobile": false,
+  "session_id": "sess_1705329600_xyz789",
+  "page_load_time": 1250,
+  
+  "external_id": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+  "em": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+  "event_time": 1705329600,
+  "event_id": "evt_1705329600_abc123def",
+  "action_source": "website",
+  
+  "lead_quality_score": 85,
+  "device_quality_score": 90,
+  "engagement_score": 78,
+  "data_completeness": 95,
+  "tracking_confidence": 88,
+  
+  "facebook_conversions_api": {
+    "data": [{
+      "event_name": "Lead",
+      "event_time": 1705329600,
+      "event_id": "evt_1705329600_abc123def",
+      "action_source": "website",
+      "user_data": {
+        "em": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+        "fbc": "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
+        "fbp": "fb.1.1554763741205.123456789",
+        "client_ip_address": "192.168.1.100",
+        "client_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "external_id": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+      },
+      "custom_data": {
+        "medicare_journey": "just-starting",
+        "current_insurance": "employer",
+        "insurance_cost": "$200-400",
+        "utm_source": "facebook",
+        "utm_campaign": "medicare-2024-q1",
+        "device_type": "desktop",
+        "platform": "MacIntel",
+        "lead_quality_score": 85,
+        "engagement_score": 78
+      }
+    }]
+  }
+}

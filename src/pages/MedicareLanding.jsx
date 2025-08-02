@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Shield, CheckCircle, Star, CheckCircle2, Award, ShieldCheck } from 'lucide-react';
+import { getAdvancedTrackingData, trackEnhancedEvent } from '../utils/advancedTracking';
+import { enhanceWebhookWithFacebookData } from '../utils/facebookConversionsAPI';
 
 import ProgressIndicator from '../components/webinar/ProgressIndicator';
 import TimeSelectionStep from '../components/webinar/TimeSelectionStep';
@@ -36,13 +38,39 @@ export default function MedicareLanding() {
     utm_campaign: '',
     utm_content: '',
     utm_term: '',
-    // Add Facebook tracking data
+    // Enhanced tracking data
     ip_address: '',
     fbc: '',  // Facebook Click ID
     fbp: '',  // Facebook Browser ID
     user_agent: '',
     referrer: '',
-    url: ''
+    url: '',
+    // Advanced tracking fields
+    screen_resolution: '',
+    viewport_size: '',
+    device_pixel_ratio: '',
+    platform: '',
+    language: '',
+    timezone: '',
+    timezone_offset: '',
+    connection_type: '',
+    connection_downlink: '',
+    session_id: '',
+    page_load_time: '',
+    is_mobile: '',
+    is_tablet: '',
+    client_ip_address: '',
+    client_user_agent: '',
+    gclid: '',
+    msclkid: '',
+    event_time: '',
+    event_id: '',
+    action_source: 'website',
+    external_id: '', // Hashed email for Facebook
+    em: '', // Hashed email for Facebook Conversions API
+    latitude: '',
+    longitude: '',
+    location_accuracy: ''
   });
   const [pixelEventId, setPixelEventId] = useState('');
   const [devMode, setDevMode] = useState(false);
@@ -62,25 +90,50 @@ export default function MedicareLanding() {
 
   const sendPartialData = async (data) => {
     if (data.consent && !partialSent && !devMode) {
-      const partialWebhook = {
-        ...data,
-        completion_status: 'partial',
-        last_step: currentStep,
-        abandoned_at: new Date().toISOString(),
-        webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null
-      };
-      
       try {
-        await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(partialWebhook),
-          mode: 'no-cors'
+        // Create enhanced tracking data for abandonment
+        const enhancedData = await trackEnhancedEvent('FormAbandonment', {
+          completion_status: 'partial',
+          last_step: currentStep,
+          abandoned_at: new Date().toISOString(),
+          webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null,
+          abandonment_reason: 'page_visibility_change'
+        }, data.email);
+
+        // Enhance with comprehensive tracking data
+        const partialWebhook = enhanceWebhookWithFacebookData({
+          ...data,
+          ...enhancedData,
+          completion_status: 'partial',
+          last_step: currentStep,
+          abandoned_at: new Date().toISOString(),
+          webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null
         });
-        console.log('✅ Sent partial data:', partialWebhook);
-        setPartialSent(true);
+        
+        // Use sendBeacon for reliable delivery during page unload
+        const webhookPayload = JSON.stringify(partialWebhook);
+        const success = navigator.sendBeacon(
+          'https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5',
+          new Blob([webhookPayload], { type: 'application/json' })
+        );
+        
+        if (success) {
+          console.log('✅ Sent enhanced partial data via sendBeacon:', partialWebhook);
+          setPartialSent(true);
+        } else {
+          console.warn('⚠️ sendBeacon failed, falling back to fetch');
+          // Fallback to regular fetch
+          await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: webhookPayload,
+            mode: 'no-cors'
+          });
+          console.log('✅ Sent enhanced partial data via fetch fallback');
+          setPartialSent(true);
+        }
       } catch (error) {
-        console.error('Error sending partial data:', error);
+        console.error('Error sending enhanced partial data:', error);
       }
     }
   };
@@ -121,40 +174,31 @@ export default function MedicareLanding() {
       }
     }
 
-    // Capture Facebook data
+    // Capture comprehensive tracking data
     const captureWebData = async () => {
       try {
-        // Get IP address
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
+        // Get advanced tracking data
+        const advancedData = await getAdvancedTrackingData();
         
-        // Get Facebook Click ID from URL
-        const fbc = urlParams.get('fbclid') || '';
+        console.log('📊 Captured advanced tracking data:', advancedData);
         
-        // Get Facebook Browser ID from cookie
-        const fbp = getCookie('_fbp') || '';
-        
-        // Capture other data
-        const webData = {
-          ip_address: ipData.ip,
-          fbc: fbc,
-          fbp: fbp,
-          user_agent: navigator.userAgent,
-          referrer: document.referrer || '',
-          url: window.location.href
-        };
-        
-        setFbData(webData);
+        setFbData({
+          ip_address: advancedData.ip_address,
+          fbc: advancedData.fbc,
+          fbp: advancedData.fbp,
+          user_agent: advancedData.user_agent,
+          referrer: advancedData.referrer
+        });
         
         // Update formData with all tracking data
         setFormData(prev => ({
           ...prev,
           ...utmData,
-          ...webData
+          ...advancedData
         }));
         
       } catch (error) {
-        console.error('Error capturing web data:', error);
+        console.error('Error capturing advanced tracking data:', error);
       }
     };
 
@@ -274,14 +318,25 @@ export default function MedicareLanding() {
     setFormData(leadData);
 
     try {
-      const webhookData = {
-        ...formData, // This now includes all FB tracking data
+      // Create enhanced tracking data for the initial submission
+      const enhancedData = await trackEnhancedEvent('CompleteRegistration', {
+        completion_status: 'partial',
         pixel_event_id: eventId,
-        completion_status: 'partial' // or 'completed'
-      };
+        value: 12,
+        currency: 'USD',
+        content_name: 'Webinar Registration'
+      }, leadData.email);
+
+      // Enhance with Facebook Conversions API data
+      const webhookData = enhanceWebhookWithFacebookData({
+        ...leadData,
+        ...enhancedData,
+        pixel_event_id: eventId,
+        completion_status: 'partial'
+      });
 
       if (!devMode) {
-        console.log('Sending initial webhook data:', webhookData);
+        console.log('📊 Sending enhanced initial webhook data:', webhookData);
         const response = await fetch('https://hook.us1.make.com/r1kbh1gkk5j31prdnhcn1dq8hsk2gyd9', {
           method: 'POST',
           headers: {
@@ -293,7 +348,7 @@ export default function MedicareLanding() {
         });
         console.log('Initial webhook response status:', response.status);
       } else {
-        console.log('🧪 DEV MODE: Would send initial webhook:', webhookData);
+        console.log('🧪 DEV MODE: Would send enhanced initial webhook:', webhookData);
       }
 
       // Fire CompleteRegistration pixel event (only if not dev mode)
@@ -329,17 +384,31 @@ export default function MedicareLanding() {
     setFormData(fullLeadData);
 
     try {
-      const webhookData = {
+      // Create enhanced tracking data for the final submission
+      const enhancedData = await trackEnhancedEvent('Lead', {
+        completion_status: 'completed',
+        pixel_event_id: eventId,
+        pixel_event_name: 'CompleteRegistration',
+        registration_completed_at: new Date().toISOString(),
+        webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000),
+        value: 25,
+        currency: 'USD',
+        content_name: 'Medicare Webinar Lead'
+      }, fullLeadData.email);
+
+      // Enhance with Facebook Conversions API data and lead scoring
+      const webhookData = enhanceWebhookWithFacebookData({
         ...fullLeadData,
+        ...enhancedData,
         completion_status: 'completed',
         pixel_event_id: eventId,
         pixel_event_name: 'CompleteRegistration',
         registration_completed_at: new Date().toISOString(),
         webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000)
-      };
+      });
 
       if (!devMode) {
-        console.log('Sending final webhook data (with event_id):', webhookData);
+        console.log('📊 Sending enhanced final webhook data:', webhookData);
         const response = await fetch('https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5', {
           method: 'POST',
           headers: {
