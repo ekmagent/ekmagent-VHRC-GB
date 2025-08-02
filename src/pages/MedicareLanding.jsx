@@ -162,6 +162,29 @@ export default function MedicareLanding() {
   }, []);
 
   useEffect(() => {
+    // Add global error handler to prevent uncaught errors from breaking the form
+    const handleGlobalError = (event) => {
+      console.warn('Global error caught:', event.error);
+      // Don't let errors break the form functionality
+      event.preventDefault();
+    };
+
+    const handleUnhandledRejection = (event) => {
+      console.warn('Unhandled promise rejection:', event.reason);
+      // Don't let promise rejections break the form
+      event.preventDefault();
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('webinarFormData', JSON.stringify(formData));
   }, [formData]);
 
@@ -179,13 +202,21 @@ export default function MedicareLanding() {
             webinarTime_unix: formData.webinarTime ? Math.floor(new Date(formData.webinarTime).getTime() / 1000) : null
           };
 
-          navigator.sendBeacon(
+          try {
+          const success = navigator.sendBeacon(
             'https://hook.us1.make.com/sdv55xk1d8iacpxbhnagymcgrkuf6ju5',
             JSON.stringify(partialData)
           );
           
-          console.log('📵 Page hidden - sent partial data:', partialData);
-          setPartialSent(true);
+          if (success) {
+            console.log('📵 Page hidden - sent partial data:', partialData);
+            setPartialSent(true);
+          } else {
+            console.warn('📵 SendBeacon failed - data may not have been sent');
+          }
+        } catch (error) {
+          console.error('📵 Error sending visibility change webhook:', error);
+        }
         } else {
           console.log('🧪 DEV MODE: Would send data on visibility change');
           console.log('🧪 Visibility change detected but webhook blocked in dev mode');
