@@ -74,6 +74,8 @@ export default function MedicareLanding() {
   const [testSessionId] = useState(() => 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
   const [inactivityTimer, setInactivityTimer] = useState(null);
   const [partialSent, setPartialSent] = useState(false);
+  const [initialSubmitted, setInitialSubmitted] = useState(false);
+  const [finalSubmitted, setFinalSubmitted] = useState(false);
 
   // Add these state variables at the top
   const [fbData, setFbData] = useState({
@@ -259,7 +261,7 @@ export default function MedicareLanding() {
   // Use Page Visibility API to capture form abandonment (better for Facebook in-app browser)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && formData.consent && !partialSent) {
+      if (document.hidden && formData.consent && !partialSent && !finalSubmitted) {
         if (!devMode) {
           // Page became hidden - user likely left (especially good for Facebook browser)
           const partialData = {
@@ -349,7 +351,14 @@ export default function MedicareLanding() {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const handleInitialSubmit = async () => {
+    // Prevent double submission
+    if (initialSubmitted || isSubmitting) {
+      console.log('🚫 Initial submission blocked - already submitted or in progress');
+      return;
+    }
+    
     setIsSubmitting(true);
+    setInitialSubmitted(true);
     const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     setPixelEventId(eventId);
 
@@ -418,6 +427,8 @@ export default function MedicareLanding() {
       setCurrentStep((prev) => prev + 1);
     } catch (error) {
       console.error('Error on initial submission webhook:', error);
+      // Reset guards on error to allow retry
+      setInitialSubmitted(false);
       setCurrentStep((prev) => prev + 1);
     } finally {
       setIsSubmitting(false);
@@ -425,7 +436,14 @@ export default function MedicareLanding() {
   };
 
   const handleFinalSubmit = async (finalData) => {
+    // Prevent double submission
+    if (finalSubmitted || isSubmitting) {
+      console.log('🚫 Final submission blocked - already submitted or in progress');
+      return;
+    }
+    
     setIsSubmitting(true);
+    setFinalSubmitted(true);
     
     // CLEAR the timer - they're finishing!
     if (inactivityTimer) {
@@ -441,7 +459,7 @@ export default function MedicareLanding() {
       const enhancedData = await trackEnhancedEvent('Lead', {
         completion_status: 'completed',
         pixel_event_id: eventId,
-        pixel_event_name: 'CompleteRegistration',
+        pixel_event_name: 'Lead',
         registration_completed_at: new Date().toISOString(),
         webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000),
         value: 25,
@@ -455,7 +473,7 @@ export default function MedicareLanding() {
         ...enhancedData,
         completion_status: 'completed',
         pixel_event_id: eventId,
-        pixel_event_name: 'CompleteRegistration',
+        pixel_event_name: 'Lead',
         registration_completed_at: new Date().toISOString(),
         webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000)
       });
@@ -482,6 +500,8 @@ export default function MedicareLanding() {
       }
     } catch (error) {
       console.error('Error on final submit webhook:', error);
+      // Reset guard on error to allow retry
+      setFinalSubmitted(false);
       if (!devMode) {
         localStorage.removeItem('webinarFormData');
         window.location.href = 'https://go.easykindmedicare.com/confirmation-webinar-7550';
