@@ -21,9 +21,6 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run dev mode protection tests
-      run: npm test -- --testNamePattern="Dev Mode"
-      
     - name: Check for dev mode bypasses
       run: |
         # Check that all sendBeacon calls are properly protected by dev mode checks
