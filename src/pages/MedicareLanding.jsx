@@ -382,8 +382,6 @@ export default function MedicareLanding() {
       const enhancedData = await trackEnhancedEvent('CompleteRegistration', {
         completion_status: 'partial',
         pixel_event_id: eventId,
-        value: 45,
-        currency: 'USD',
         content_name: 'Webinar Registration'
       }, leadData.email);
 
@@ -474,8 +472,6 @@ export default function MedicareLanding() {
         pixel_event_name: 'Lead',
         registration_completed_at: new Date().toISOString(),
         webinarTime_unix: Math.floor(new Date(fullLeadData.webinarTime).getTime() / 1000),
-        value: 25,
-        currency: 'USD',
         content_name: 'Medicare Webinar Lead'
       }, fullLeadData.email);
 

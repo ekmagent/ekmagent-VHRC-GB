@@ -26,9 +26,25 @@ jobs:
       
     - name: Check for dev mode bypasses
       run: |
-        if grep -r "navigator\.sendBeacon" src/ | grep -v "if.*!devMode" | grep -v "else"; then
-          echo "❌ CRITICAL: Potential dev mode bypass detected!"
-          exit 1
+        # Check that all sendBeacon calls are properly protected by dev mode checks
+        sendbeacon_lines=$(grep -rn "navigator\.sendBeacon" src/ || true)
+        if [ -n "$sendbeacon_lines" ]; then
+          echo "Found sendBeacon calls:"
+          echo "$sendbeacon_lines"
+          
+          # Check each sendBeacon call has proper dev mode protection
+          while IFS= read -r line; do
+            file=$(echo "$line" | cut -d: -f1)
+            lineno=$(echo "$line" | cut -d: -f2)
+            
+            # Check if there's a "if (!devMode)" within 10 lines before this sendBeacon call
+            if ! sed -n "$((lineno-10)),$((lineno-1))p" "$file" 2>/dev/null | grep -q "if.*!devMode"; then
+              echo "❌ CRITICAL: sendBeacon call at $file:$lineno not protected by dev mode check!"
+              exit 1
+            fi
+          done <<< "$sendbeacon_lines"
+          
+          echo "✅ All sendBeacon calls properly protected by dev mode checks"
         fi
         
     - name: Validate webhook URLs
