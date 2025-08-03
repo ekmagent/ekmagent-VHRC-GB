@@ -382,7 +382,7 @@ export default function MedicareLanding() {
       const enhancedData = await trackEnhancedEvent('CompleteRegistration', {
         completion_status: 'partial',
         pixel_event_id: eventId,
-        value: 12,
+        value: 45,
         currency: 'USD',
         content_name: 'Webinar Registration'
       }, leadData.email);
@@ -425,12 +425,10 @@ export default function MedicareLanding() {
         console.log('🧪 DEV MODE: Would send enhanced initial webhook:', webhookData);
       }
 
-      // Fire CompleteRegistration pixel event (only if not dev mode)
+      // Fire CompleteRegistration pixel event (no value - let CAPI handle optimization)
       if (typeof window !== 'undefined' && window.fbq && !devMode) {
         window.fbq('track', 'CompleteRegistration', {
           content_name: 'Webinar Registration',
-          value: 12,
-          currency: 'USD',
           utm_source: leadData.utm_source,
           utm_campaign: leadData.utm_campaign
         }, { eventID: eventId });
