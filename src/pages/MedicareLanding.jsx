@@ -71,6 +71,7 @@ export default function MedicareLanding() {
   });
   const [pixelEventId, setPixelEventId] = useState('');
   const [devMode, setDevMode] = useState(false);
+  const [testSessionId] = useState(() => 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
   const [inactivityTimer, setInactivityTimer] = useState(null);
   const [partialSent, setPartialSent] = useState(false);
 
@@ -86,15 +87,23 @@ export default function MedicareLanding() {
   const totalSteps = 12; // Change from 11 to 12
 
   const sendPartialData = async (data) => {
+    console.log('🔍 sendPartialData called:', {
+      consent: data.consent,
+      partialSent,
+      devMode,
+      timestamp: new Date().toISOString()
+    });
+    
     if (data.consent && !partialSent && !devMode) {
       try {
+        console.log('✅ Proceeding with partial data send');
         // Create enhanced tracking data for abandonment
         const enhancedData = await trackEnhancedEvent('FormAbandonment', {
           completion_status: 'partial',
           last_step: currentStep,
           abandoned_at: new Date().toISOString(),
           webinarTime_unix: data.webinarTime ? Math.floor(new Date(data.webinarTime).getTime() / 1000) : null,
-          abandonment_reason: 'page_visibility_change'
+          abandonment_reason: 'inactivity_timer'
         }, data.email);
 
         // Skip webhook for low-quality traffic
@@ -143,6 +152,13 @@ export default function MedicareLanding() {
       } catch (error) {
         console.error('Error sending enhanced partial data:', error);
       }
+    } else {
+      console.log('🚫 sendPartialData blocked:', {
+        reason: !data.consent ? 'no_consent' : partialSent ? 'already_sent' : 'dev_mode',
+        consent: data.consent,
+        partialSent,
+        devMode
+      });
     }
   };
 
@@ -294,9 +310,24 @@ export default function MedicareLanding() {
 
     // START 3-minute timer after consent
     if (updatedFormData.consent && !partialSent) {
+      console.log('⏰ Starting inactivity timer', {
+        testSessionId,
+        devMode,
+        timerDuration: devMode ? '30 seconds' : '3 minutes',
+        consent: updatedFormData.consent,
+        partialSent,
+        currentStep,
+        timestamp: new Date().toISOString()
+      });
+      
       const timer = setTimeout(() => {
+        console.log('⏰ 3-minute timer fired!', {
+          testSessionId,
+          devMode,
+          timestamp: new Date().toISOString()
+        });
         sendPartialData(updatedFormData);
-      }, 3 * 60 * 1000); // 3 minutes
+      }, devMode ? 30 * 1000 : 3 * 60 * 1000); // 30 seconds in dev mode, 3 minutes in production
       setInactivityTimer(timer);
     }
 

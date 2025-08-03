@@ -1,0 +1,67 @@
+{
+  "firstName": "John",
+  "lastName": "Doe", 
+  "email": "john.doe@example.com",
+  "phone": "(555) 123-4567",
+  
+  "customFields": {
+    "cf_lead_quality_score": 87,
+    "cf_device_quality_score": 95,
+    "cf_engagement_score": 82,
+    "cf_data_completeness": 98,
+    "cf_tracking_confidence": 93,
+    
+    "cf_utm_source": "facebook",
+    "cf_utm_medium": "cpc", 
+    "cf_utm_campaign": "medicare-2024-q1",
+    "cf_utm_content": "video-ad-turning-65",
+    "cf_utm_term": "medicare-supplement",
+    
+    "cf_facebook_click_id": "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
+    "cf_facebook_browser_id": "fb.1.1554763741205.123456789",
+    "cf_google_click_id": "",
+    "cf_microsoft_click_id": "",
+    
+    "cf_device_type": "desktop",
+    "cf_platform": "MacIntel",
+    "cf_screen_resolution": "1920x1080",
+    "cf_connection_type": "4g",
+    "cf_is_mobile": false,
+    "cf_is_tablet": false,
+    "cf_device_pixel_ratio": 2,
+    
+    "cf_page_load_time": 1250,
+    "cf_session_duration": 45000,
+    "cf_form_completion_time": 45000,
+    "cf_session_id": "sess_1705329600_xyz789abc",
+    "cf_pixel_event_id": "event_1705329600_abc123def",
+    
+    "cf_timezone": "America/New_York",
+    "cf_language": "en-US",
+    "cf_ip_address": "MTkyLjE2OC4x...",
+    "cf_referrer": "https://www.facebook.com/",
+    "cf_landing_url": "https://webinar.easykindmedicare.com/",
+    
+    "cf_completion_status": "completed",
+    "cf_webinar_time": "2024-01-15T19:00:00Z",
+    "cf_webinar_time_unix": 1705329600,
+    "cf_registration_completed_at": "2024-01-15T14:30:00.000Z",
+    
+    "cf_medicare_journey": "Ready to get this handled and feel confident about my choice",
+    "cf_current_insurance": "employer",
+    "cf_insurance_cost": "$200-400",
+    "cf_birth_year": "1959",
+    "cf_birth_month": "March",
+    
+    "cf_user_agent_hash": "TW96aWxsYS81...",
+    "cf_event_time": 1705329600,
+    "cf_event_id": "evt_1705329600_abc123def",
+    "cf_external_id": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+  },
+  
+  "originalData": {
+    "source": "enhanced_medicare_webinar",
+    "timestamp": "2024-01-15T14:30:00.000Z",
+    "version": "2.0"
+  }
+}
