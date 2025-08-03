@@ -186,7 +186,11 @@ export default function MedicareLanding() {
     }
 
     if (typeof window !== 'undefined' && window.fbq && !isDevMode) {
-      window.fbq('track', 'PageView');
+      window.fbq('track', 'PageView', {
+        utm_source: utmData.utm_source,
+        utm_campaign: utmData.utm_campaign,
+        utm_medium: utmData.utm_medium
+      });
     } else if (isDevMode) {
       console.log('🧪 DEV MODE: Skipped PageView pixel event');
     }
@@ -333,14 +337,22 @@ export default function MedicareLanding() {
       setInactivityTimer(timer);
     }
 
-    // Fire FB Pixel events for micro-conversions
-    if (typeof window !== 'undefined' && window.fbq) {
+    // Fire FB Pixel events for micro-conversions with UTM data
+    if (typeof window !== 'undefined' && window.fbq && !devMode) {
       switch (currentStep) {
         case 0: // After selecting time (this step is currentStep 0, so when moving to 1)
-          window.fbq('track', 'ViewContent', { content_name: 'Webinar Time Selected' });
+          window.fbq('track', 'ViewContent', { 
+            content_name: 'Webinar Time Selected',
+            utm_source: updatedFormData.utm_source,
+            utm_campaign: updatedFormData.utm_campaign
+          });
           break;
         case 2: // After submitting last name (this step is currentStep 2, so when moving to 3)
-          window.fbq('track', 'InitiateCheckout', { content_name: 'Webinar q 2 completed' });
+          window.fbq('track', 'InitiateCheckout', { 
+            content_name: 'Webinar q 2 completed',
+            utm_source: updatedFormData.utm_source,
+            utm_campaign: updatedFormData.utm_campaign
+          });
           break;
       }
     }
@@ -418,7 +430,9 @@ export default function MedicareLanding() {
         window.fbq('track', 'CompleteRegistration', {
           content_name: 'Webinar Registration',
           value: 12,
-          currency: 'USD'
+          currency: 'USD',
+          utm_source: leadData.utm_source,
+          utm_campaign: leadData.utm_campaign
         }, { eventID: eventId });
       } else if (devMode) {
         console.log('🧪 DEV MODE: Would fire CompleteRegistration pixel event');
