@@ -49,6 +49,8 @@ export default function EmailStep({ formData, onNext, onBack }) {
         <Input
           autoFocus
           type="email"
+          name="email"
+          autoComplete="email"
           placeholder="your.email@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

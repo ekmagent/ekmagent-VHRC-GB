@@ -45,6 +45,9 @@ export default function FirstNameStep({ formData, onNext, onBack }) {
         <Input
           autoFocus
           type="text"
+          name="firstName"
+          autoComplete="given-name"
+          autoCapitalize="words"
           placeholder="Enter your first name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}

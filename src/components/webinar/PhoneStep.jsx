@@ -104,6 +104,8 @@ export default function PhoneStep({ formData, onNext, onBack }) {
         <Input
           autoFocus
           type="tel"
+          name="phone"
+          autoComplete="tel"
           placeholder="(555) 123-4567"
           value={phone}
           onChange={handlePhoneChange}
