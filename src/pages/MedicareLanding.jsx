@@ -92,11 +92,12 @@ export default function MedicareLanding() {
     console.log('🔍 sendPartialData called:', {
       consent: data.consent,
       partialSent,
+      initialSubmitted,
       devMode,
       timestamp: new Date().toISOString()
     });
     
-    if (data.consent && !partialSent && !devMode) {
+    if (data.consent && !partialSent && initialSubmitted && !devMode) {
       try {
         console.log('✅ Proceeding with partial data send');
         // Create enhanced tracking data for abandonment
@@ -145,9 +146,10 @@ export default function MedicareLanding() {
       }
     } else {
       console.log('🚫 sendPartialData blocked:', {
-        reason: !data.consent ? 'no_consent' : partialSent ? 'already_sent' : 'dev_mode',
+        reason: !data.consent ? 'no_consent' : partialSent ? 'already_sent' : !initialSubmitted ? 'no_initial_submit' : 'dev_mode',
         consent: data.consent,
         partialSent,
+        initialSubmitted,
         devMode
       });
     }
@@ -254,7 +256,7 @@ export default function MedicareLanding() {
   // Use Page Visibility API to capture form abandonment (better for Facebook in-app browser)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && formData.consent && !partialSent && !finalSubmitted) {
+      if (document.hidden && formData.consent && !partialSent && !finalSubmitted && initialSubmitted) {
         if (!devMode) {
           // Page became hidden - user likely left (especially good for Facebook browser)
           const partialData = {
@@ -303,8 +305,8 @@ export default function MedicareLanding() {
       clearTimeout(inactivityTimer);
     }
 
-    // START 3-minute timer after consent
-    if (updatedFormData.consent && !partialSent) {
+    // START 3-minute timer after consent AND initial submission
+    if (updatedFormData.consent && !partialSent && initialSubmitted) {
       console.log('⏰ Starting inactivity timer', {
         testSessionId,
         devMode,
