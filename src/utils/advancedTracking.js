@@ -1,8 +1,49 @@
 // Advanced Tracking Utilities for Facebook Conversions API and Attribution
 // Captures comprehensive user data for better signal quality
 
+const convertToGHLTimezone = (timezone, offset) => {
+  // Convert offset from minutes to hours (JavaScript offset is opposite of GMT)
+  const offsetHours = Math.abs(offset) / 60;
+  const sign = offset > 0 ? '-' : '+'; 
+  
+  // Format GMT offset (pad single digits with 0)
+  const hours = Math.floor(offsetHours).toString().padStart(2, '0');
+  const minutes = ((offsetHours % 1) * 60).toString().padStart(2, '0');
+  const gmtOffset = `GMT${sign}${hours}:${minutes}`;
+  
+  // Get timezone abbreviation
+  const now = new Date();
+  let timezoneName = '';
+  try {
+    timezoneName = new Intl.DateTimeFormat('en', {
+      timeZone: timezone,
+      timeZoneName: 'short'
+    }).formatToParts(now).find(part => part.type === 'timeZoneName')?.value || '';
+  } catch (error) {
+    console.warn('Could not get timezone abbreviation:', error);
+    timezoneName = timezone.split('/')[1] || timezone;
+  }
+  
+  // Map common timezones to GHL-expected format
+  const timezoneMap = {
+    'America/Los_Angeles': 'America/Los_Angeles',
+    'America/New_York': 'America/New_York', 
+    'America/Chicago': 'America/Chicago',
+    'America/Denver': 'America/Denver',
+    'America/Phoenix': 'America/Phoenix',
+    'America/Anchorage': 'America/Juneau',
+    'Pacific/Honolulu': 'Pacific/Honolulu',
+    'Europe/London': 'Europe/London',
+    'America/Toronto': 'America/Toronto'
+  };
+  
+  const mappedTimezone = timezoneMap[timezone] || timezone;
+  
+  return `${gmtOffset} ${mappedTimezone} (${timezoneName})`;
+};
+
 export const getAdvancedTrackingData = async () => {
-  const data = {};
+  let data = {};
   
   try {
     // 1. FACEBOOK TRACKING (Critical for Conversions API)
@@ -53,22 +94,32 @@ export const getAdvancedTrackingData = async () => {
     data.color_depth = screen.colorDepth;
     data.platform = navigator.platform;
     data.language = navigator.language;
-    data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    data.timezone_offset = new Date().getTimezoneOffset();
+    
+    // 6. TIMEZONE DATA - Updated for GHL format
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezoneOffset = new Date().getTimezoneOffset();
+    
+    // Keep original for internal use/debugging
+    data.timezone_raw = timezone;
+    data.timezone_offset_raw = timezoneOffset;
+    
+    // Add GHL-formatted timezone
+    data.timezone = convertToGHLTimezone(timezone, timezoneOffset);
+    data.timezone_offset = timezoneOffset; // Keep as number for other uses
 
-    // 6. CONNECTION INFO
+    // 7. CONNECTION INFO
     if (navigator.connection) {
       data.connection_type = navigator.connection.effectiveType;
       data.connection_downlink = navigator.connection.downlink;
     }
 
-    // 7. SESSION DATA
+    // 8. SESSION DATA
     data.session_id = getOrCreateSessionId();
     data.page_load_time = performance.now();
     data.is_mobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
     data.is_tablet = /iPad|Android(?!.*Mobile)/.test(navigator.userAgent);
     
-    // 8. FACEBOOK-SPECIFIC ENHANCEMENTS
+    // 9. FACEBOOK-SPECIFIC ENHANCEMENTS
     // External ID (hashed email for better matching)
     data.external_id = ''; // Will be populated after email is entered
     
@@ -76,7 +127,7 @@ export const getAdvancedTrackingData = async () => {
     data.client_ip_address = data.ip_address; // Facebook prefers this field name
     data.client_user_agent = data.user_agent; // Facebook prefers this field name
     
-    // 9. ATTRIBUTION DATA
+    // 10. ATTRIBUTION DATA
     data.utm_source = urlParams.get('utm_source') || '';
     data.utm_medium = urlParams.get('utm_medium') || '';
     data.utm_campaign = urlParams.get('utm_campaign') || '';
@@ -85,13 +136,13 @@ export const getAdvancedTrackingData = async () => {
     data.gclid = urlParams.get('gclid') || ''; // Google Click ID
     data.msclkid = urlParams.get('msclkid') || ''; // Microsoft Click ID
     
-    // 10. ENGAGEMENT METRICS
+    // 11. ENGAGEMENT METRICS
     data.page_view_id = generateUniqueId();
     data.session_duration = 0; // Will be updated as user interacts
     data.scroll_depth = 0; // Will be updated as user scrolls
     data.form_interactions = 0; // Will be updated as user fills form
     
-    // 11. ADDITIONAL FACEBOOK SIGNALS
+    // 12. ADDITIONAL FACEBOOK SIGNALS
     data.event_time = Math.floor(Date.now() / 1000); // Unix timestamp
     data.event_id = generateUniqueId(); // Unique event identifier
     data.action_source = 'website'; // Facebook Conversions API requirement
