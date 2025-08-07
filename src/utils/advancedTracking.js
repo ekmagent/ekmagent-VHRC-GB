@@ -9,7 +9,19 @@ export const getAdvancedTrackingData = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     
     // Facebook Click ID (from URL parameter)
-    data.fbc = urlParams.get('fbclid') || '';
+    data.fbc = (() => {
+      const fbclid = urlParams.get('fbclid');
+      if (fbclid) {
+        return `fb.1.${Date.now()}.${fbclid}`;
+      }
+      
+      const fbcCookie = getCookie('_fbc');
+      if (fbcCookie) {
+        return fbcCookie.startsWith('fb.1.') ? fbcCookie : `fb.1.${Date.now()}.${fbcCookie}`;
+      }
+      
+      return '';
+    })();
     
     // Facebook Browser ID (from cookie)
     data.fbp = getCookie('_fbp') || '';
