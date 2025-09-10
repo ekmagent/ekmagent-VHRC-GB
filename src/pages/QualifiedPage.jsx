@@ -10,7 +10,7 @@ export default function QualifiedPage({ formData }) {
   }, []);
 
   const handleCallNow = () => {
-    window.location.href = 'tel:1-800-VETERAN'; // Replace with actual phone number
+    window.location.href = 'tel:+1-856-888-4641';
   };
 
   return (
@@ -30,9 +30,9 @@ export default function QualifiedPage({ formData }) {
             className="mb-6">
             <Button
               onClick={handleCallNow}
-              className="h-14 w-full text-lg font-bold rounded-xl bg-[#ff9900] hover:bg-[#e88b00] text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3">
+              className="h-14 w-full text-lg font-bold rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3">
               <Phone className="w-5 h-5" />
-              Call Now: 1-800-VETERAN
+              📞 Click to Call: 1-800-VET-VHRC
             </Button>
           </motion.div>
 
@@ -97,7 +97,7 @@ export default function QualifiedPage({ formData }) {
               onClick={handleCallNow}
               className="h-16 w-full max-w-md mx-auto text-xl font-bold rounded-xl bg-[#ff9900] hover:bg-[#e88b00] text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3">
               <Phone className="w-6 h-6" />
-              Call Now: 1-800-VETERAN
+              📞 Click to Call: 1-800-VET-VHRC
             </Button>
             
             <p className="text-sm text-gray-500 text-center">
