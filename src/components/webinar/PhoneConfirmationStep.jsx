@@ -4,18 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Phone, CheckCircle, Shield } from 'lucide-react';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Phone, CheckCircle, Shield } from 'lucide-react';
-
-export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBack, firstName }) {
-import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Phone, CheckCircle, Shield } from 'lucide-react';
-
 export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBack, firstName = '' }) {
   const [showUpdate, setShowUpdate] = useState(false);
   const [newPhone, setNewPhone] = useState('');
