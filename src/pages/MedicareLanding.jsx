@@ -82,10 +82,12 @@ export default function MedicareLanding() {
   const [pixelEventId, setPixelEventId] = useState('');
   const [devMode, setDevMode] = useState(false);
   const [testSessionId] = useState(() => 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+  const [submissionId] = useState(() => 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)); // Unique submission ID
   const [inactivityTimer, setInactivityTimer] = useState(null);
   const [partialSent, setPartialSent] = useState(false);
   const [initialSubmitted, setInitialSubmitted] = useState(false);
   const [finalSubmitted, setFinalSubmitted] = useState(false);
+  const [webhookSent, setWebhookSent] = useState(false); // NEW: Track if final webhook was sent
 
   // Add these state variables at the top
   const [fbData, setFbData] = useState({
@@ -104,10 +106,15 @@ export default function MedicareLanding() {
   const handleRestart = () => {
     setShowNotQualified(false);
     setCurrentStep(0);
+    setWebhookSent(false); // Reset webhook sent flag
+    setFinalSubmitted(false);
+    setInitialSubmitted(false);
+    
     setFormData({
       firstName: '',
       lastName: '',
       phone: '',
+      zipCode: '',
       consent: false,
       militaryBranch: '',
       militaryHealth: '',
@@ -126,68 +133,8 @@ export default function MedicareLanding() {
   };
 
   const sendPartialData = async (data) => {
-    console.log('🔍 sendPartialData called:', {
-      consent: data.consent,
-      partialSent,
-      initialSubmitted,
-      devMode,
-      timestamp: new Date().toISOString()
-    });
-    
-    if (data.consent && !partialSent && initialSubmitted && !devMode) {
-      try {
-        console.log('✅ Proceeding with partial data send');
-        // Create enhanced tracking data for abandonment
-        const enhancedData = await trackEnhancedEvent('FormAbandonment', {
-          completion_status: 'partial',
-          last_step: currentStep,
-          abandoned_at: new Date().toISOString(),
-          abandonment_reason: 'inactivity_timer'
-        }, data.firstName + ' ' + data.lastName);
-
-        // Enhance with comprehensive tracking data
-        const partialWebhook = enhanceWebhookWithFacebookData({
-          ...data,
-          ...enhancedData,
-          completion_status: 'partial',
-          last_step: currentStep,
-          abandoned_at: new Date().toISOString()
-        });
-        
-        // Use sendBeacon for reliable delivery during page unload
-        const webhookPayload = JSON.stringify(partialWebhook);
-        const success = navigator.sendBeacon(
-          'https://hook.us1.make.com/hngcspz66w1q367qmpy5c84afsanf9nh',
-          new Blob([webhookPayload], { type: 'application/json' })
-        );
-        
-        if (success) {
-          console.log('✅ Sent enhanced partial data via sendBeacon:', partialWebhook);
-          setPartialSent(true);
-        } else {
-          console.warn('⚠️ sendBeacon failed, falling back to fetch');
-          // Fallback to regular fetch
-          await fetch('https://hook.us1.make.com/hngcspz66w1q367qmpy5c84afsanf9nh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: webhookPayload,
-            mode: 'no-cors'
-          });
-          console.log('✅ Sent enhanced partial data via fetch fallback');
-          setPartialSent(true);
-        }
-      } catch (error) {
-        console.error('Error sending enhanced partial data:', error);
-      }
-    } else {
-      console.log('🚫 sendPartialData blocked:', {
-        reason: !data.consent ? 'no_consent' : partialSent ? 'already_sent' : !initialSubmitted ? 'no_initial_submit' : 'dev_mode',
-        consent: data.consent,
-        partialSent,
-        initialSubmitted,
-        devMode
-      });
-    }
+    console.log('🔍 sendPartialData called but disabled - only final webhook will be sent');
+    // This function is disabled - we only send webhook on final completion
   };
 
   useEffect(() => {
@@ -288,39 +235,11 @@ export default function MedicareLanding() {
     localStorage.setItem('webinarFormData', JSON.stringify(formData));
   }, [formData]);
 
-  // Use Page Visibility API to capture form abandonment (better for Facebook in-app browser)
+  // Use Page Visibility API to capture form abandonment (disabled - only final webhook)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && formData.consent && !partialSent && !finalSubmitted && initialSubmitted) {
-        if (!devMode) {
-          // Page became hidden - user likely left (especially good for Facebook browser)
-          const partialData = {
-            ...formData,
-            completion_status: 'abandoned_visibility_change',
-            last_step: currentStep,
-            abandoned_at: new Date().toISOString()
-          };
-
-          try {
-          const success = navigator.sendBeacon(
-            'https://hook.us1.make.com/hngcspz66w1q367qmpy5c84afsanf9nh',
-            JSON.stringify(partialData)
-          );
-          
-          if (success) {
-            console.log('📵 Page hidden - sent partial data:', partialData);
-            setPartialSent(true);
-          } else {
-            console.warn('📵 SendBeacon failed - data may not have been sent');
-          }
-        } catch (error) {
-          console.error('📵 Error sending visibility change webhook:', error);
-        }
-        } else {
-          console.log('🧪 DEV MODE: Would send data on visibility change');
-          console.log('🧪 Visibility change detected but webhook blocked in dev mode');
-        }
-      }
+      console.log('📵 Page visibility changed but abandonment webhook disabled - only final webhook will fire');
+      // Abandonment webhooks disabled - only send webhook on final completion
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -339,28 +258,7 @@ export default function MedicareLanding() {
       clearTimeout(inactivityTimer);
     }
 
-    // START 3-minute timer after consent AND initial submission
-    if (updatedFormData.consent && !partialSent && initialSubmitted) {
-      console.log('⏰ Starting inactivity timer', {
-        testSessionId,
-        devMode,
-        timerDuration: devMode ? '30 seconds' : '3 minutes',
-        consent: updatedFormData.consent,
-        partialSent,
-        currentStep,
-        timestamp: new Date().toISOString()
-      });
-      
-      const timer = setTimeout(() => {
-        console.log('⏰ 3-minute timer fired!', {
-          testSessionId,
-          devMode,
-          timestamp: new Date().toISOString()
-        });
-        sendPartialData(updatedFormData);
-      }, devMode ? 30 * 1000 : 3 * 60 * 1000); // 30 seconds in dev mode, 3 minutes in production
-      setInactivityTimer(timer);
-    }
+    console.log('➡️ Moving to next step - no intermediate webhooks');
 
     // Fire FB Pixel events for micro-conversions with UTM data
     if (typeof window !== 'undefined' && window.fbq && !devMode) {
@@ -403,39 +301,9 @@ export default function MedicareLanding() {
     setFormData(leadData);
 
     try {
-      // Create enhanced tracking data for the initial submission
-      const enhancedData = await trackEnhancedEvent('CompleteRegistration', {
-        completion_status: 'partial',
-        pixel_event_id: eventId,
-        content_name: 'Webinar Registration'
-      }, leadData.firstName + ' ' + leadData.lastName);
-
-      // Enhance with Facebook Conversions API data
-      const webhookData = enhanceWebhookWithFacebookData({
-        ...leadData,
-        ...enhancedData,
-        consent: true, // Explicitly ensure consent is true
-        pixel_event_id: eventId,
-        completion_status: 'partial'
-      });
-
-      if (!devMode) {
-        console.log('📊 Sending enhanced initial webhook data:', webhookData);
-        const response = await fetch('https://hook.us1.make.com/hngcspz66w1q367qmpy5c84afsanf9nh', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(webhookData),
-          mode: 'no-cors'
-        });
-        console.log('Initial webhook response status:', response.status);
-      } else {
-        console.log('🧪 DEV MODE: Would send enhanced initial webhook:', webhookData);
-      }
-
-      // Fire CompleteRegistration pixel event (no value - let CAPI handle optimization)
+      console.log('✅ Consent received - advancing to next step (no webhook sent yet)');
+      
+      // Fire CompleteRegistration pixel event (no webhook yet)
       if (typeof window !== 'undefined' && window.fbq && !devMode) {
         window.fbq('track', 'CompleteRegistration', {
           content_name: 'Webinar Registration',
@@ -448,7 +316,7 @@ export default function MedicareLanding() {
 
       setCurrentStep((prev) => prev + 1);
     } catch (error) {
-      console.error('Error on initial submission webhook:', error);
+      console.error('Error on initial submission:', error);
       // Reset guards on error to allow retry
       setInitialSubmitted(false);
       setCurrentStep((prev) => prev + 1);
@@ -458,9 +326,14 @@ export default function MedicareLanding() {
   };
 
   const handleFinalSubmit = async (finalData) => {
-    // Prevent double submission
-    if (finalSubmitted || isSubmitting) {
-      console.log('🚫 Final submission blocked - already submitted or in progress');
+    // Prevent double submission with multiple checks
+    if (finalSubmitted || isSubmitting || webhookSent) {
+      console.log('🚫 Final submission blocked - already submitted:', {
+        finalSubmitted,
+        isSubmitting,
+        webhookSent,
+        submissionId
+      });
       return;
     }
     
@@ -472,18 +345,38 @@ export default function MedicareLanding() {
       clearTimeout(inactivityTimer);
     }
     
-    const eventId = pixelEventId;
-    const fullLeadData = { ...formData, ...finalData };
+    const eventId = pixelEventId || 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const fullLeadData = { 
+      ...formData, 
+      ...finalData,
+      submission_id: submissionId, // Add unique submission ID
+      completed_at: new Date().toISOString()
+    };
     setFormData(fullLeadData);
 
     try {
+      // Check localStorage to prevent duplicate submissions on page refresh
+      const sentSubmissions = JSON.parse(localStorage.getItem('sentSubmissions') || '[]');
+      if (sentSubmissions.includes(submissionId)) {
+        console.log('🚫 Webhook already sent for this submission ID:', submissionId);
+        setShowQualifiedPage(true);
+        return;
+      }
+
+      console.log('📊 Sending FINAL webhook (only webhook for this form):', {
+        submissionId,
+        eventId,
+        timestamp: new Date().toISOString()
+      });
+
       // Create enhanced tracking data for the final submission
       const enhancedData = await trackEnhancedEvent('Lead', {
         completion_status: 'completed',
         pixel_event_id: eventId,
         pixel_event_name: 'Lead',
         registration_completed_at: new Date().toISOString(),
-        content_name: 'Veteran Health Resource Lead'
+        content_name: 'Veteran Health Resource Lead',
+        submission_id: submissionId
       }, fullLeadData.firstName + ' ' + fullLeadData.lastName);
 
       // Enhance with Facebook Conversions API data and lead scoring
@@ -493,11 +386,12 @@ export default function MedicareLanding() {
         completion_status: 'completed',
         pixel_event_id: eventId,
         pixel_event_name: 'Lead',
-        registration_completed_at: new Date().toISOString()
+        registration_completed_at: new Date().toISOString(),
+        submission_id: submissionId
       });
 
       if (!devMode) {
-        console.log('📊 Sending enhanced final webhook data:', webhookData);
+        console.log('📊 Sending FINAL webhook data:', webhookData);
         const response = await fetch('https://hook.us1.make.com/hngcspz66w1q367qmpy5c84afsanf9nh', {
           method: 'POST',
           headers: {
@@ -508,7 +402,13 @@ export default function MedicareLanding() {
           mode: 'no-cors'
         });
         console.log('Final webhook response status:', response.status);
+        
+        // Mark webhook as sent
+        setWebhookSent(true);
+        sentSubmissions.push(submissionId);
+        localStorage.setItem('sentSubmissions', JSON.stringify(sentSubmissions));
         localStorage.removeItem('webinarFormData');
+        
         await new Promise((resolve) => setTimeout(resolve, 500));
         setShowQualifiedPage(true);
       } else {
@@ -520,6 +420,7 @@ export default function MedicareLanding() {
       console.error('Error on final submit webhook:', error);
       // Reset guard on error to allow retry
       setFinalSubmitted(false);
+      setWebhookSent(false);
       if (!devMode) {
         localStorage.removeItem('webinarFormData');
         setShowQualifiedPage(true);
