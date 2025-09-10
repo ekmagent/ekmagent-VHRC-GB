@@ -25,7 +25,7 @@ export default function MedicareJourneyStep({ firstName, onSubmit, onBack, isSub
     >
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Where are you in your Medicare journey right now?
+          Where are you in your Veteran Giveback Benefit journey right now?
         </h2>
         <p className="text-gray-600 text-lg">
           Pick the answer that's closest—there are no wrong choices.

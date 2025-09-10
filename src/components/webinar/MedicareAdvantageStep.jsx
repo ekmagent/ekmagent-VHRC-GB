@@ -21,7 +21,7 @@ export default function MedicareAdvantageStep({ firstName, onNext, onBack }) {
         >
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-[#1e3a8a] mb-3">Do you currently have a Medicare Advantage plan, {firstName}?</h2>
-                <p className="text-gray-600 text-lg">This helps us understand your current Medicare coverage.</p>
+                <p className="text-gray-600 text-lg">This helps us understand your current coverage for the Veteran Giveback Benefit.</p>
             </div>
             <div className="flex flex-col space-y-3">
                 {advantageOptions.map((option, index) => (

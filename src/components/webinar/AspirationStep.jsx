@@ -25,7 +25,7 @@ export default function AspirationStep({ firstName, onNext, onBack }) {
             <div className="text-center">
                 <div className="bg-[#1e3a8a]/10 rounded-lg p-4 mb-6">
                     <h2 className="text-2xl font-bold text-[#1e3a8a] mb-3">Great news, {firstName}!</h2>
-                    <p className="text-lg text-gray-700 mb-3">You're one step closer to qualifying for the <span className="font-bold text-[#dc2626]">Patriot Payback</span>.</p>
+                    <p className="text-lg text-gray-700 mb-3">You're one step closer to qualifying for the <span className="font-bold text-[#dc2626]">Veteran Giveback Benefit</span>.</p>
                     <p className="text-xl font-bold text-[#1e3a8a]">What would you do with an extra $1,800 each year?</p>
                 </div>
             </div>

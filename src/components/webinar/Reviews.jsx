@@ -6,13 +6,13 @@ const reviews = [
   {
     name: 'Barbara S.',
     age: 68,
-    text: "This webinar was a lifesaver. The presenters made complex topics so easy to understand. I'm now saving over $150 a month!",
+    text: "This information was a lifesaver. The presenters made complex topics so easy to understand about the Veteran Giveback Benefit. I'm now saving over $150 a month!",
     image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     name: 'Robert P.',
     age: 66,
-    text: 'I thought I knew everything about Medicare, but I learned so many new strategies. 100% recommend this to anyone approaching or on Medicare.',
+    text: 'I thought I knew everything about veteran benefits, but I learned so many new strategies. 100% recommend this to anyone looking into the Veteran Giveback Benefit.',
     image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   }
 ];
