@@ -553,12 +553,12 @@ export default function MedicareLanding() {
           transition={{ duration: 0.6 }}
           className="text-center mb-4">
 
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#dc2626]/10 border border-[#dc2626]/20 mb-4">
-            <Shield className="w-4 h-4 text-[#dc2626] mr-2" />
-            <span className="text-sm font-semibold text-[#1e3a8a]">FREE Veteran Benefits Assessment</span>
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#FFB400]/10 border border-[#FFB400]/20 mb-4">
+            <Calendar className="w-4 h-4 text-[#FFB400] mr-2" />
+            <span className="text-sm font-semibold text-[#0D2C4C]">Veteran Giveback Benefit</span>
           </div>
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#1e3a8a] leading-tight mb-3">
-            Discover Your Veteran Giveback Benefit: Get Up to $1,800 Back Each Year
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0D2C4C] leading-tight mb-3">
+            Discover Your Veteran Giveback Benefit: Up to $1,800 Back Each Year
           </h1>
           
           <div className="flex justify-center mt-3 text-base text-gray-700">
@@ -653,7 +653,7 @@ export default function MedicareLanding() {
                 <div>
                   <p className="text-[#1e3a8a] font-extrabold">Veteran Health Resource Center
                   </p>
-                  <p className="text-xs text-gray-500">Serving Veterans Since 2018</p>
+                  <p className="text-xs text-gray-500">Your Veteran Giveback Benefit Experts</p>
                 </div>
                 <div className="flex space-x-0.5">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
