@@ -16,7 +16,6 @@ import PartBPremiumStep from '../components/webinar/PartBPremiumStep';
 import MedicareAdvantageStep from '../components/webinar/MedicareAdvantageStep';
 import AspirationStep from '../components/webinar/AspirationStep';
 import ComplianceStep from '../components/webinar/ComplianceStep';
-import StartDateStep from '../components/webinar/StartDateStep';
 import ZipCodeStep from '../components/webinar/ZipCodeStep';
 import PhoneConfirmationStep from '../components/webinar/PhoneConfirmationStep';
 import NotQualifiedPage from './NotQualifiedPage';
@@ -28,7 +27,7 @@ export default function MedicareLanding() {
   const [showNotQualified, setShowNotQualified] = useState(false);
   const [showQualifiedPage, setShowQualifiedPage] = useState(false);
   const [disqualificationReason, setDisqualificationReason] = useState('');
-  const totalSteps = 14; // Total number of form steps
+  const totalSteps = 13; // Total number of form steps
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -42,7 +41,6 @@ export default function MedicareLanding() {
     medicareAdvantage: '',
     aspiration: '',
     compliance: '',
-    startDate: '',
     utm_source: '',
     utm_medium: '',
     utm_campaign: '',
@@ -123,7 +121,6 @@ export default function MedicareLanding() {
       medicareAdvantage: '',
       aspiration: '',
       compliance: '',
-      startDate: '',
       utm_source: formData.utm_source,
       utm_medium: formData.utm_medium,
       utm_campaign: formData.utm_campaign,
@@ -505,22 +502,16 @@ export default function MedicareLanding() {
           onBack={prevStep}
           isSubmitting={isSubmitting} />;
 
-      case 12: // Phone Confirmation Step
+      case 12: // Phone Confirmation Step (Final submission)
         return <PhoneConfirmationStep
           currentPhone={formData.phone}
           onConfirmed={(confirmedPhone) => {
-            // Update formData with confirmed/updated phone number
-            setFormData(prev => ({ ...prev, phone: confirmedPhone }));
-            nextStep({ phone: confirmedPhone });
+            // Update formData with confirmed/updated phone number and trigger final submission
+            const updatedData = { ...formData, phone: confirmedPhone };
+            setFormData(updatedData);
+            handleFinalSubmit({ phone: confirmedPhone });
           }}
           onBack={prevStep} />;
-
-      case 13: // Start Date (Final submission)
-        return <StartDateStep
-          firstName={formData.firstName || ""}
-          onSubmit={(startDate) => handleFinalSubmit({ startDate })}
-          onBack={prevStep}
-          isSubmitting={isSubmitting} />;
 
       default:
         return null;
