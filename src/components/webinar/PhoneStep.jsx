@@ -9,6 +9,8 @@ export default function PhoneStep({ formData, onNext, onBack }) {
   const [error, setError] = useState('');
   const [focused, setFocused] = useState(true);
   
+  const firstName = formData.firstName || '';
+  
   const formatPhone = (value) => {
     const cleaned = value.replace(/\D/g, '');
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
@@ -93,7 +95,7 @@ export default function PhoneStep({ formData, onNext, onBack }) {
     >
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Almost done! Where should we send information about the benefit?
+          Almost done{firstName ? `, ${firstName}` : ''}! Where should we send information about the benefit?
         </h2>
         <p className="text-gray-600 text-lg">
           We respect your privacy. Your number is never shared.

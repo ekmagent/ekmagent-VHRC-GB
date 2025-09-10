@@ -505,6 +505,7 @@ export default function MedicareLanding() {
       case 12: // Phone Confirmation Step (Final submission)
         return <PhoneConfirmationStep
           currentPhone={formData.phone}
+          firstName={formData.firstName}
           onConfirmed={(confirmedPhone) => {
             // Update formData with confirmed/updated phone number and trigger final submission
             const updatedData = { ...formData, phone: confirmedPhone };

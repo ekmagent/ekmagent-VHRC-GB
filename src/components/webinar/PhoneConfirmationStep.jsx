@@ -2,9 +2,21 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Phone, CheckCircle } from 'lucide-react';
+import { Phone, CheckCircle, Shield } from 'lucide-react';
 
-export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBack }) {
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Phone, CheckCircle, Shield } from 'lucide-react';
+
+export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBack, firstName }) {
+import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Phone, CheckCircle, Shield } from 'lucide-react';
+
+export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBack, firstName = '' }) {
   const [showUpdate, setShowUpdate] = useState(false);
   const [newPhone, setNewPhone] = useState('');
   const [error, setError] = useState('');
@@ -87,11 +99,24 @@ export default function PhoneConfirmationStep({ currentPhone, onConfirmed, onBac
               <Phone className="w-8 h-8 text-[#1e3a8a]" />
             </div>
             <h2 className="text-2xl font-bold text-[#1e3a8a] mb-3">
-              Confirm your phone number
+              One Last Thing{firstName ? `, ${firstName}` : ''}, we will confirm your phone number.
             </h2>
-            <p className="text-gray-600 text-lg mb-6">
-              We'll contact you about your qualified benefits at:
+            <p className="text-gray-600 text-lg mb-4">
+              We respect your privacy, your information is never shared
             </p>
+            
+            {/* Trust Signals */}
+            <div className="flex justify-center items-center space-x-6 mb-6">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Shield className="w-5 h-5 text-[#22c55e]" />
+                <span className="font-medium">SSL Secured</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <CheckCircle className="w-5 h-5 text-[#22c55e]" />
+                <span className="font-medium">Privacy Protected</span>
+              </div>
+            </div>
+            
             <div className="bg-blue-50 rounded-xl p-4 mb-6">
               <p className="text-2xl font-bold text-[#1e3a8a]">{currentPhone}</p>
             </div>
