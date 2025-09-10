@@ -640,9 +640,11 @@ export default function MedicareLanding() {
           </div>
 
           <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex items-start space-x-4">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-[#1e3a8a] to-[#dc2626] flex items-center justify-center border-2 border-white flex-shrink-0">
-              <Shield className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
-            </div>
+            <img
+              src="/VHRC Logo Square.jpg"
+              alt="Veteran Health Resource Center"
+              className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white flex-shrink-0"
+            />
 
 
             <div className="flex-1">
