@@ -18,10 +18,10 @@ export default function ConsentStep({ firstName, onSubmit, onBack, isSubmitting 
     >
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[#0D2C4C] mb-3">
-          Perfect, {firstName}! You're almost registered.
+          Perfect, {firstName}! Let's get you the benefits you have earned from your service.
         </h2>
         <p className="text-gray-600 text-lg">
-          Just confirm your registration to secure your seat.
+          Just confirm your registration to secure the benefit.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export default function ConsentStep({ firstName, onSubmit, onBack, isSubmitting 
         </div>
         <div className="text-center">
           <Award className="w-6 h-6 text-[#FFB400] mx-auto mb-1" />
-          <p className="text-xs text-gray-600 font-medium">Expert Led</p>
+          <p className="text-xs text-gray-600 font-medium">Veteran Trusted</p>
         </div>
         <div className="text-center">
           <Heart className="w-6 h-6 text-[#FFB400] mx-auto mb-1" />
@@ -52,7 +52,7 @@ export default function ConsentStep({ firstName, onSubmit, onBack, isSubmitting 
           transition={{ delay: 0.2 }}
           className="text-gray-600 text-center text-sm leading-relaxed"
         >
-          By clicking below, you agree to receive communications from EasyKind Health. We respect your privacy and will only send you valuable Medicare information.
+          By clicking below, you consent to receive calls, texts, and emails from us at the number and email provided, including automated calls and texts using pre-recorded messages and automatic dialing systems. Your consent is not required to purchase. Message and data rates may apply. Reply STOP to opt out.
         </motion.p>
 
         <motion.div
@@ -76,7 +76,7 @@ export default function ConsentStep({ firstName, onSubmit, onBack, isSubmitting 
                 <span>Registering...</span>
               </div>
             ) : (
-              'Register & Continue'
+              'Agree & Continue'
             )}
           </Button>
           <Button 

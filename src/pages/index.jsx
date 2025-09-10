@@ -1,12 +1,14 @@
 import Layout from "./Layout.jsx";
 
-import MedicareLanding from "./MedicareLanding";
+import VeteranLanding from "./MedicareLanding";
+import NotQualifiedPage from "./NotQualifiedPage";
+import QualifiedPage from "./QualifiedPage";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
     
-    MedicareLanding: MedicareLanding,
+    VeteranLanding: VeteranLanding,
     
 }
 
@@ -32,10 +34,12 @@ function PagesContent() {
         <Layout currentPageName={currentPage}>
             <Routes>            
                 
-                    <Route path="/" element={<MedicareLanding />} />
+                    <Route path="/" element={<VeteranLanding />} />
                 
                 
-                <Route path="/MedicareLanding" element={<MedicareLanding />} />
+                <Route path="/VeteranLanding" element={<VeteranLanding />} />
+                <Route path="/not-qualified" element={<NotQualifiedPage />} />
+                <Route path="/qualified" element={<QualifiedPage />} />
                 
             </Routes>
         </Layout>

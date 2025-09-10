@@ -51,7 +51,7 @@ export default function LastNameStep({ formData, onNext, onBack }) {
           onKeyDown={handleKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className={`h-16 text-center text-xl rounded-xl border-2 transition-all duration-200 ${
+          className={`h-16 text-center text-xl rounded-xl border-2 bg-white transition-all duration-200 ${
             error
               ? 'border-red-400 focus:border-red-500'
               : focused
