@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 
 export default function Layout({ children }) {
   useEffect(() => {
-    const pixelId = '269162989026221'; // IMPORTANT: Replace with your actual Pixel ID
+    const pixelId = '1977358423007215'; // IMPORTANT: Replace with your actual Pixel ID
 
     // Prevent duplicate script injection
     if (window.fbq) return;

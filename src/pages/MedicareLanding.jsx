@@ -370,10 +370,10 @@ export default function MedicareLanding() {
       });
 
       // Create enhanced tracking data for the final submission
-      const enhancedData = await trackEnhancedEvent('Lead', {
+      const enhancedData = await trackEnhancedEvent('CompleteRegistration', {
         completion_status: 'completed',
         pixel_event_id: eventId,
-        pixel_event_name: 'Lead',
+        pixel_event_name: 'CompleteRegistration',
         registration_completed_at: new Date().toISOString(),
         content_name: 'Veteran Health Resource Lead',
         submission_id: submissionId
@@ -385,7 +385,7 @@ export default function MedicareLanding() {
         ...enhancedData,
         completion_status: 'completed',
         pixel_event_id: eventId,
-        pixel_event_name: 'Lead',
+        pixel_event_name: 'CompleteRegistration',
         registration_completed_at: new Date().toISOString(),
         submission_id: submissionId
       });
@@ -649,10 +649,9 @@ export default function MedicareLanding() {
           </div>
 
           <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl shadow-md border border-gray-100 flex items-start space-x-4">
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/7ca4a92a4_IMG_5861.png"
-              alt="Veteran Benefits Specialist" className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white flex-shrink-0"
-/>
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-[#1e3a8a] to-[#dc2626] flex items-center justify-center border-2 border-white flex-shrink-0">
+              <Shield className="w-12 h-12 sm:w-14 sm:h-14 text-white" />
+            </div>
 
 
             <div className="flex-1">
