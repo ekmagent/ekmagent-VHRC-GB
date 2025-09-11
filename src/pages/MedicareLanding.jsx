@@ -282,7 +282,7 @@ export default function MedicareLanding() {
 
   const prevStep = () => {
     // Reset submission states when going back
-    if (currentStep === 12) { // Going back from consent step (now final step)
+    if (currentStep === 12) { // Going back from consent step (final step)
       setFinalSubmitted(false);
       setIsSubmitting(false);
     }
@@ -449,7 +449,31 @@ export default function MedicareLanding() {
           onNext={(phone) => nextStep({ phone })}
           onBack={prevStep} />;
 
-      case 7: // Phone Confirmation Step  
+      case 7: // Zip Code
+        return <ZipCodeStep
+          formData={formData}
+          onNext={(zipCode) => nextStep({ zipCode })}
+          onBack={prevStep} />;
+
+      case 8: // Aspiration Question
+        return <AspirationStep
+          firstName={formData.firstName || ""}
+          onNext={(aspiration) => nextStep({ aspiration })}
+          onBack={prevStep} />;
+
+      case 9: // Medicare Advantage
+        return <MedicareAdvantageStep
+          firstName={formData.firstName || ""}
+          onNext={(medicareAdvantage) => nextStep({ medicareAdvantage })}
+          onBack={prevStep} />;
+
+      case 10: // Compliance/Education
+        return <ComplianceStep
+          firstName={formData.firstName || ""}
+          onNext={(compliance) => nextStep({ compliance })}
+          onBack={prevStep} />;
+
+      case 11: // Phone Confirmation Step (moved after compliance)
         return <PhoneConfirmationStep
           currentPhone={formData.phone}
           firstName={formData.firstName}
@@ -460,31 +484,7 @@ export default function MedicareLanding() {
           }}
           onBack={prevStep} />;
 
-      case 8: // Zip Code
-        return <ZipCodeStep
-          formData={formData}
-          onNext={(zipCode) => nextStep({ zipCode })}
-          onBack={prevStep} />;
-
-      case 9: // Aspiration Question
-        return <AspirationStep
-          firstName={formData.firstName || ""}
-          onNext={(aspiration) => nextStep({ aspiration })}
-          onBack={prevStep} />;
-
-      case 10: // Medicare Advantage
-        return <MedicareAdvantageStep
-          firstName={formData.firstName || ""}
-          onNext={(medicareAdvantage) => nextStep({ medicareAdvantage })}
-          onBack={prevStep} />;
-
-      case 11: // Compliance/Education
-        return <ComplianceStep
-          firstName={formData.firstName || ""}
-          onNext={(compliance) => nextStep({ compliance })}
-          onBack={prevStep} />;
-
-      case 12: // Consent Step (moved to after phone confirmation)
+      case 12: // Consent Step (final step)
         return <ConsentStep
           firstName={formData.firstName || ""}
           onSubmit={handleFinalSubmit}
