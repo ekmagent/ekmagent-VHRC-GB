@@ -280,46 +280,13 @@ export default function MedicareLanding() {
     setCurrentStep((prev) => prev + 1); 
   };
 
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
-  const handleInitialSubmit = async () => {
-    // Prevent double submission
-    if (initialSubmitted || isSubmitting) {
-      console.log('🚫 Initial submission blocked - already submitted or in progress');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setInitialSubmitted(true);
-    const eventId = 'event_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    setPixelEventId(eventId);
-
-    const leadData = { ...formData, consent: true };
-    setFormData(leadData);
-
-    try {
-      console.log('✅ Consent received - advancing to next step (no webhook sent yet)');
-      
-      // Fire CompleteRegistration pixel event (no webhook yet)
-      if (typeof window !== 'undefined' && window.fbq && !devMode) {
-        window.fbq('track', 'CompleteRegistration', {
-          content_name: 'Webinar Registration',
-          utm_source: leadData.utm_source,
-          utm_campaign: leadData.utm_campaign
-        }, { eventID: eventId });
-      } else if (devMode) {
-        console.log('🧪 DEV MODE: Would fire CompleteRegistration pixel event');
-      }
-
-      setCurrentStep((prev) => prev + 1);
-    } catch (error) {
-      console.error('Error on initial submission:', error);
-      // Reset guards on error to allow retry
-      setInitialSubmitted(false);
-      setCurrentStep((prev) => prev + 1);
-    } finally {
+  const prevStep = () => {
+    // Reset submission states when going back
+    if (currentStep === 12) { // Going back from consent step (now final step)
+      setFinalSubmitted(false);
       setIsSubmitting(false);
     }
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
   const handleFinalSubmit = async (finalData) => {
@@ -346,6 +313,7 @@ export default function MedicareLanding() {
     const fullLeadData = { 
       ...formData, 
       ...finalData,
+      consent: true, // Explicitly set consent since this is now the final step
       submission_id: submissionId, // Add unique submission ID
       completed_at: new Date().toISOString()
     };
@@ -399,6 +367,16 @@ export default function MedicareLanding() {
           mode: 'no-cors'
         });
         console.log('Final webhook response status:', response.status);
+        
+        // Fire CompleteRegistration pixel event after successful webhook
+        if (typeof window !== 'undefined' && window.fbq) {
+          window.fbq('track', 'CompleteRegistration', {
+            content_name: 'Veteran Giveback Benefit Registration',
+            utm_source: fullLeadData.utm_source,
+            utm_campaign: fullLeadData.utm_campaign
+          }, { eventID: eventId });
+          console.log('✅ CompleteRegistration pixel event fired');
+        }
         
         // Mark webhook as sent
         setWebhookSent(true);
@@ -471,48 +449,47 @@ export default function MedicareLanding() {
           onNext={(phone) => nextStep({ phone })}
           onBack={prevStep} />;
 
-      case 7: // Zip Code
+      case 7: // Phone Confirmation Step  
+        return <PhoneConfirmationStep
+          currentPhone={formData.phone}
+          firstName={formData.firstName}
+          onConfirmed={(confirmedPhone) => {
+            // Update formData with confirmed/updated phone number and advance to consent
+            setFormData(prev => ({ ...prev, phone: confirmedPhone }));
+            nextStep({ phone: confirmedPhone });
+          }}
+          onBack={prevStep} />;
+
+      case 8: // Zip Code
         return <ZipCodeStep
           formData={formData}
           onNext={(zipCode) => nextStep({ zipCode })}
           onBack={prevStep} />;
 
-      case 8: // Aspiration Question
+      case 9: // Aspiration Question
         return <AspirationStep
           firstName={formData.firstName || ""}
           onNext={(aspiration) => nextStep({ aspiration })}
           onBack={prevStep} />;
 
-      case 9: // Medicare Advantage
+      case 10: // Medicare Advantage
         return <MedicareAdvantageStep
           firstName={formData.firstName || ""}
           onNext={(medicareAdvantage) => nextStep({ medicareAdvantage })}
           onBack={prevStep} />;
 
-      case 10: // Compliance/Education
+      case 11: // Compliance/Education
         return <ComplianceStep
           firstName={formData.firstName || ""}
           onNext={(compliance) => nextStep({ compliance })}
           onBack={prevStep} />;
 
-      case 11: // Consent Step (moved from step 5)
+      case 12: // Consent Step (moved to after phone confirmation)
         return <ConsentStep
           firstName={formData.firstName || ""}
-          onSubmit={handleInitialSubmit}
+          onSubmit={handleFinalSubmit}
           onBack={prevStep}
           isSubmitting={isSubmitting} />;
-
-      case 12: // Phone Confirmation Step (Final submission)
-        return <PhoneConfirmationStep
-          currentPhone={formData.phone}
-          firstName={formData.firstName}
-          onConfirmed={(confirmedPhone) => {
-            // Update formData with confirmed/updated phone number and trigger final submission
-            const updatedData = { ...formData, phone: confirmedPhone };
-            setFormData(updatedData);
-            handleFinalSubmit({ phone: confirmedPhone });
-          }}
-          onBack={prevStep} />;
 
       default:
         return null;
